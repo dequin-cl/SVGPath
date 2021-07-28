@@ -21,8 +21,24 @@ public enum SVG {
     }
 }
 
+private class Point {
+    private var digits: [Float] = []
+    var isFull: Bool { digits.count == 2 }
+    var cgvalue: CGPoint { CGPoint(x: CGFloat(digits[0]), y: CGFloat(digits[1])) }
+    
+    func clear() {
+        digits = []
+    }
+    
+    func addDigit(_ digit: String) {
+        if let value = Float(digit) {
+            digits.append(value)
+        }
+    }
+}
+
 class Instruction {
-    private(set) var points: [CGPoint] = []
+    private(set) var point: CGPoint?
     private(set) var command: SVG.Command
     private(set) var correlation: SVG.Correlation
     
@@ -36,19 +52,34 @@ class Instruction {
         self.correlation = correlation
     }
     
-    //MARK: - Mutators
-    
-    private var previousNumber: Float?
-    public func addNumber(number: Float?) {
-        guard let number = number else { return }
+    private var digitAcumulator: String = ""
+    private var currentPoint = Point()
+    public func addDigit(_ digit: String.Element) {
         
-        if previousNumber == nil {
-            previousNumber = number
-        } else {
-            let point = CGPoint(x: CGFloat(previousNumber!), y: CGFloat(number))
-            points.append(point)
-            previousNumber = nil
+        digitAcumulator.append(digit)
+    }
+    
+    public func processSeparator() {
+        if !digitAcumulator.isEmpty {
+            currentPoint.addDigit(digitAcumulator)
+            digitAcumulator = ""
         }
+        
+        if currentPoint.isFull {
+            point = currentPoint.cgvalue
+            currentPoint.clear()
+        }
+    }
+    
+    var isExpectingNumeric: Bool { !digitAcumulator.isEmpty }
+    var hasCoordinate: Bool { point != nil }
+}
+
+extension Instruction: Equatable {
+    static func == (lhs: Instruction, rhs: Instruction) -> Bool {
+        lhs.point == rhs.point &&
+            lhs.command == rhs.command &&
+            lhs.correlation == rhs.correlation
     }
 }
 
@@ -77,8 +108,13 @@ class Instruction {
             fileprivate init(target: Instruction) {
                 self.target = target
             }
-
-            var previousNumber: Float? { target.previousNumber }
+            
+            func addPoint(x: CGFloat, y: CGFloat) {
+                target.point = CGPoint(x: x, y: y)
+            }
+            
+            var digitAcumulator:String { target.digitAcumulator }
         }
+        
     }
 #endif

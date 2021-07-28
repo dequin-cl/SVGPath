@@ -7,28 +7,112 @@
             let instruction = Instruction()
             XCTAssertEqual(instruction.command, .closePath)
             XCTAssertEqual(instruction.correlation, .relative)
-            XCTAssertTrue(instruction.points.isEmpty)
+            XCTAssertNil(instruction.point)
 //            XCTAssertEqual(instruction.point, .zero)
 //            XCTAssertEqual(instruction.control1, .zero)
 //            XCTAssertEqual(instruction.control2, .zero)
+        }
+ 
+        func testBuildAbsoluteMoveToInstructionA() {
+            let instruction = Instruction(command: .moveTo, correlation: .absolute)
+            
+            XCTAssertEqual(instruction.correlation, .absolute)
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("1")
+
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "1")
+            instruction.processSeparator()
+            
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("2")
+
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "2")
+            instruction.processSeparator()
+            
+            XCTAssertNotNil(instruction.point)
         }
         
         func testBuildAbsoluteMoveToInstruction() {
             let instruction = Instruction(command: .moveTo, correlation: .absolute)
             
             XCTAssertEqual(instruction.correlation, .absolute)
-            XCTAssertNil(instruction.testHooks.previousNumber)
-            XCTAssertTrue(instruction.points.isEmpty)
+            XCTAssertNil(instruction.point)
 
-            instruction.addNumber(number: 1.0)
+            instruction.addDigit("1")
+            instruction.addDigit("0")
+            instruction.addDigit("0")
+
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "100")
+            instruction.processSeparator()
             
-            XCTAssertEqual(instruction.testHooks.previousNumber, 1.0)
-            XCTAssertTrue(instruction.points.isEmpty)
+            XCTAssertNil(instruction.point)
 
-            instruction.addNumber(number: 2.0)
+            instruction.addDigit("2")
+            instruction.addDigit("0")
 
-            XCTAssertNil(instruction.testHooks.previousNumber)
-            XCTAssertEqual(instruction.points.count, 1)
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "20")
+            instruction.processSeparator()
+            
+            XCTAssertNotNil(instruction.point)
+
+        }
+        
+        func testBuildAbsoluteMoveToInstructionWithNegative() {
+            let instruction = Instruction(command: .moveTo, correlation: .absolute)
+            
+            XCTAssertEqual(instruction.correlation, .absolute)
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("-")
+            instruction.addDigit("1")
+            instruction.addDigit("0")
+            instruction.addDigit("0")
+
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "-100")
+            instruction.processSeparator()
+            
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("2")
+            instruction.addDigit("0")
+            instruction.addDigit(".")
+            instruction.addDigit("5")
+
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "20.5")
+            instruction.processSeparator()
+            
+            XCTAssertNotNil(instruction.point)
+            XCTAssertEqual(instruction.point, CGPoint(x: -100, y: 20.5))
+
+
+        }
+        
+        func testBuildAbsoluteMoveToInstructionWithDecimals() {
+            let instruction = Instruction(command: .moveTo, correlation: .absolute)
+            
+            XCTAssertEqual(instruction.correlation, .absolute)
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("1")
+            instruction.addDigit("1")
+            instruction.addDigit(".")
+            instruction.addDigit("5")
+            
+            XCTAssertEqual(instruction.testHooks.digitAcumulator, "11.5")
+            instruction.processSeparator()
+            
+            XCTAssertNil(instruction.point)
+
+            instruction.addDigit("2")
+            instruction.addDigit(".")
+            instruction.addDigit("0")
+
+            instruction.processSeparator()
+            
+            XCTAssertNotNil(instruction.point)
+            XCTAssertEqual(instruction.point, CGPoint(x: 11.5, y: 2.0))
 
         }
         
@@ -36,23 +120,63 @@
             let result = SVGPath("M1 2").instructions
             
             let instruction = Instruction(command: .moveTo, correlation: .absolute)
-            instruction.addNumber(number: 1.0)
-            instruction.addNumber(number: 2.0)
+            instruction.testHooks.addPoint(x: 1.0, y: 2.0)
+            let expected = [instruction]
+            
+            try SVGAssertEqual(expected, result)
+        }
+        
+        func testSingleMoveToFartherPoint() throws {
+            let result = SVGPath("M100 200").instructions
+            
+            let instruction = Instruction(command: .moveTo, correlation: .absolute)
+            instruction.testHooks.addPoint(x: 100.0, y: 200.0)
+
             let expected = [instruction]
             
             try SVGAssertEqual(expected, result)
         }
 
-        func testMoveToWithLineTo() throws {
+
+        func testMoveToWithLineToAbsolute() throws {
             let result = SVGPath("M1 2 3 4").instructions
             
-            let instruction = Instruction(command: .moveTo, correlation: .absolute)
-            instruction.addNumber(number: 1.0)
-            instruction.addNumber(number: 3.0)
-            let expected = [instruction]
+            let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+            moveTo.testHooks.addPoint(x: 1.0, y: 2.0)
+            let lineTo = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo.testHooks.addPoint(x: 3.0, y: 4.0)
+            let expected = [moveTo, lineTo]
+            
+            XCTAssertEqual(result[0], moveTo)
+            XCTAssertEqual(result[1], lineTo)
             
             try SVGAssertEqual(expected, result)
         }
+        
+        
+        func testMoveToWithLineToRelative() throws {
+            let result = SVGPath("M1 1 m1 2 3 4").instructions
+            
+            let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+            moveTo.testHooks.addPoint(x: 1.0, y: 1.0)
+            let moveToRelative = Instruction(command: .moveTo, correlation: .relative)
+            moveToRelative.testHooks.addPoint(x: 1.0, y: 2.0)
+            let lineTo = Instruction(command: .lineTo, correlation: .relative)
+            lineTo.testHooks.addPoint(x: 3.0, y: 4.0)
+            let expected = [moveTo, moveToRelative, lineTo]
+            
+            try SVGAssertEqual(expected, result)
+        }
+
+
+        //  If a relative moveto (m) appears as the first element of the path, then it is treated as a pair of absolute coordinates. In this case, subsequent pairs of coordinates are treated as relative even though the initial moveto is interpreted as an absolute moveto.
+        func testMoveToWithLineToMixed() throws { }
+        
+        // "M 100 100 L 200 200"
+        // "M100 100L200 200"
+        // "M 100 200 L 200 100 -100 -200"
+        
+        
         
 //        func testMultipleMoveToSameCommand() {
 //            SVGPath("M1 2 3 4").instructions
