@@ -152,8 +152,7 @@
             
             try SVGAssertEqual(expected, result)
         }
-        
-        
+            
         func testMoveToWithLineToRelative() throws {
             let result = SVGPath("M1 1 m1 2 3 4").instructions
             
@@ -168,9 +167,26 @@
             try SVGAssertEqual(expected, result)
         }
 
-
+        func testMoveToWithLineToAllAbsolute() throws {
+            let result = SVGPath("M1 1 1 2 3 4").instructions
+            
+            let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+            moveTo.testHooks.addPoint(x: 1.0, y: 1.0)
+            let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo1.testHooks.addPoint(x: 1.0, y: 2.0)
+            let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo2.testHooks.addPoint(x: 3.0, y: 4.0)
+            let expected = [moveTo, lineTo1, lineTo2]
+            
+            try SVGAssertEqual(expected, result)
+        }
         //  If a relative moveto (m) appears as the first element of the path, then it is treated as a pair of absolute coordinates. In this case, subsequent pairs of coordinates are treated as relative even though the initial moveto is interpreted as an absolute moveto.
-        func testMoveToWithLineToMixed() throws { }
+//        func testSpacesIrrelevance() throws {
+//            let lhs = SVGPath("M 100 100 L 200 200").instructions
+//            let rhs = SVGPath("M100 100L200 200").instructions
+//            
+//            try SVGAssertEqual(lhs, rhs)
+//        }
         
         // "M 100 100 L 200 200"
         // "M100 100L200 200"

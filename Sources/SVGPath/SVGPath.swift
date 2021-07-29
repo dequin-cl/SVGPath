@@ -10,7 +10,7 @@ let period: Character = "."
 
 class SVGPath {
     private(set) var instructions: [Instruction]
-
+    private var lastRelevantCommand: SVG.Command?
     init(_ path: String) {
         
         instructions = []
@@ -21,7 +21,7 @@ class SVGPath {
                 
                 if instruction != nil, instruction!.hasCoordinate {
                     
-                    if instruction?.command == .moveTo {
+                    if lastRelevantCommand == .moveTo {
                         let newInstrution = Instruction(command: .lineTo, correlation: instruction!.correlation)
                         instructions.append(newInstrution)
                     }
@@ -37,6 +37,11 @@ class SVGPath {
                 }
                 
                 instructions.append(Instruction(command: command, correlation: correlation))
+                if command == .moveTo {
+                    lastRelevantCommand = .moveTo
+                } else {
+                    lastRelevantCommand = nil
+                }
             } else if char == period && (instruction?.isExpectingNumeric ?? false) {
                 instruction?.addDigit(char)
             }
