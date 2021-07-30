@@ -181,12 +181,12 @@
             try SVGAssertEqual(expected, result)
         }
         //  If a relative moveto (m) appears as the first element of the path, then it is treated as a pair of absolute coordinates. In this case, subsequent pairs of coordinates are treated as relative even though the initial moveto is interpreted as an absolute moveto.
-//        func testSpacesIrrelevance() throws {
-//            let lhs = SVGPath("M 100 100 L 200 200").instructions
-//            let rhs = SVGPath("M100 100L200 200").instructions
-//            
-//            try SVGAssertEqual(lhs, rhs)
-//        }
+        func testSpacesIrrelevance() throws {
+            let lhs = SVGPath("M 100 100 L 200 200").instructions
+            let rhs = SVGPath("M100 100L200 200").instructions
+            
+            try SVGAssertEqual(lhs, rhs)
+        }
         
         // "M 100 100 L 200 200"
         // "M100 100L200 200"

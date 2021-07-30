@@ -31,6 +31,7 @@ class SVGPath {
             } else if separator.contains(char) {
                 instruction?.processSeparator()
             } else if drawToCommands.contains(char) {
+                instruction?.processSeparator()
                 let correlation: SVG.Correlation = char.isUppercase ? .absolute: .relative
                 guard let command = SVG.Command(rawValue: Character(char.uppercased())) else {
                     return
