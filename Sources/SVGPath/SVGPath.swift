@@ -1,7 +1,7 @@
 
 import Foundation
 
-let digit = "0123456789eE"
+let digitExp = "0123456789eE"
 let separator = ", \t\n\r"
 let drawToCommands = "MmZzLlHhVvCcSsQqTtAa"
 let sign = "+-"
@@ -17,21 +17,22 @@ class SVGPath {
         
         path.forEach { char in
             
-            if digit.contains(char) {
+            if digitExp.contains(char) {
                 
-                if instruction != nil, instruction!.hasCoordinate {
+                if instruction.hasCoordinate {
                     
-                    if lastRelevantCommand == .moveTo {
-                        let newInstrution = Instruction(command: .lineTo, correlation: instruction!.correlation)
+                    if lastRelevantCommand == .moveTo || lastRelevantCommand == .lineTo {
+                        let newInstrution = Instruction(command: .lineTo, correlation: instruction.correlation)
                         instructions.append(newInstrution)
                     }
                 }
                 
-                instruction?.addDigit(char)
+                instruction.addDigit(char)
             } else if separator.contains(char) {
-                instruction?.processSeparator()
+                instruction.processSeparator()
             } else if drawToCommands.contains(char) {
-                instruction?.processSeparator()
+                lastInstrution?.processSeparator()
+                
                 let correlation: SVG.Correlation = char.isUppercase ? .absolute: .relative
                 guard let command = SVG.Command(rawValue: Character(char.uppercased())) else {
                     return
@@ -40,15 +41,34 @@ class SVGPath {
                 instructions.append(Instruction(command: command, correlation: correlation))
                 if command == .moveTo {
                     lastRelevantCommand = .moveTo
+                } else if command == .lineTo {
+                    lastRelevantCommand = .lineTo
                 } else {
                     lastRelevantCommand = nil
                 }
-            } else if char == period && (instruction?.isExpectingNumeric ?? false) {
-                instruction?.addDigit(char)
+            } else if char == period && instruction.isExpectingNumeric {
+                instruction.addDigit(char)
+            } else if sign.contains(char) {
+                if instruction.hasCoordinate {
+                    if lastRelevantCommand == .moveTo || lastRelevantCommand == .lineTo {
+                        let newInstrution = Instruction(command: .lineTo, correlation: instruction.correlation)
+                        instructions.append(newInstrution)
+                    }
+                }
+
+                instruction.addDigit(char)
             }
         }
-        instruction?.processSeparator()
+        instruction.processSeparator()
     }
     
-    private var instruction: Instruction? { instructions.last }
+    private var lastInstrution: Instruction? { instructions.last }
+    
+    private var instruction: Instruction {
+        guard let instruction = instructions.last else {
+            fatalError("You should call instruction only with a valid path")
+        }
+        
+        return instruction
+    }
 }

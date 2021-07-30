@@ -70,7 +70,7 @@ class Instruction {
             currentPoint.clear()
         }
     }
-    
+    var lastCharWasExponential: Bool { false }
     var isExpectingNumeric: Bool { !digitAcumulator.isEmpty }
     var hasCoordinate: Bool { point != nil }
 }

@@ -126,6 +126,17 @@
             try SVGAssertEqual(expected, result)
         }
         
+        func testSingleMoveToNegativeValues() throws {
+            let result = SVGPath("M1 -200").instructions
+            
+            let instruction = Instruction(command: .moveTo, correlation: .absolute)
+            instruction.testHooks.addPoint(x: 1.0, y: -200.0)
+            let expected = [instruction]
+            
+            try SVGAssertEqual(expected, result)
+        }
+        
+        
         func testSingleMoveToFartherPoint() throws {
             let result = SVGPath("M100 200").instructions
             
@@ -192,6 +203,28 @@
         // "M100 100L200 200"
         // "M 100 200 L 200 100 -100 -200"
         
+        
+        func testMoveLinesAndNegativeValues() throws {
+            let result = SVGPath("M 100 200 L 200 100 -100 -200").instructions
+            
+            let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+            moveTo.testHooks.addPoint(x: 100, y: 200)
+            let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo1.testHooks.addPoint(x: 200, y: 100)
+            let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo2.testHooks.addPoint(x: -100, y: -200)
+            let expected = [moveTo, lineTo1, lineTo2]
+            
+            try SVGAssertEqual(expected, result)
+        }
+        
+        func testMoveLinesAndNegativeValuesCanBeCompressed() throws {
+            let lhs = SVGPath("M 100 200 L 200 100 -100 -200").instructions
+            let rhs = SVGPath("M 100 200 200 100 -100 -200").instructions
+            
+            try SVGAssertEqual(lhs, rhs)
+
+        }
         
         
 //        func testMultipleMoveToSameCommand() {
