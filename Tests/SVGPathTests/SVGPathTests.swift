@@ -226,6 +226,35 @@
 
         }
         
+        /*
+         
+         let path = "m 83.846207,283.12668 c 15.992614,-15.1728 -2.513154,-76.38272 -19.662265,-19.85549 -2.686628,2.07836 -3.844405,3.79032 -3.843936,5.68391 2.52e-4,1.13167 1.271934,3.67458 2.424778,4.8488 29.290043,-6.79271 2.902502,8.1524 11.570816,9.81493 1.988533,0.34976 6.85716,0.0978 9.510607,-0.49215 z"
+         
+         */
+        
+        func testExponentialNumber() throws {
+            let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
+            
+            let result = SVGPath(path).instructions
+
+            let moveTo = Instruction(command: .moveTo, correlation: .relative)
+            moveTo.testHooks.addPoint(x: "83.846207", y: "283.12668")
+            let lineTo1 = Instruction(command: .lineTo, correlation: .relative)
+            lineTo1.testHooks.addPoint(x: "15.992614", y: "-15.1728")
+            let lineTo2 = Instruction(command: .lineTo, correlation: .relative)
+            lineTo2.testHooks.addPoint(x: "-2.513154", y: "3.79032")
+            let lineTo3 = Instruction(command: .lineTo, correlation: .relative)
+            lineTo3.testHooks.addPoint(x: "-3.843936", y: "5.68391")
+            let lineTo4 = Instruction(command: .lineTo, correlation: .relative)
+            lineTo4.testHooks.addPoint(x: "2.52e-4", y: "1.13167")
+
+            let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4]
+
+            try SVGAssertEqual(expected, result)
+        }
+        
+
+        
         
 //        func testMultipleMoveToSameCommand() {
 //            SVGPath("M1 2 3 4").instructions

@@ -112,6 +112,14 @@ extension Instruction: Equatable {
             func addPoint(x: CGFloat, y: CGFloat) {
                 target.point = CGPoint(x: x, y: y)
             }
+
+            func addPoint(x: String, y: String) {
+                target.digitAcumulator = x
+                target.processSeparator()
+                target.digitAcumulator = y
+                target.processSeparator()
+            }
+
             
             var digitAcumulator:String { target.digitAcumulator }
         }

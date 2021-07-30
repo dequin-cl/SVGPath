@@ -38,6 +38,10 @@ class SVGPath {
                     return
                 }
                 
+                if command == .closePath {
+                    return
+                }
+                
                 instructions.append(Instruction(command: command, correlation: correlation))
                 if command == .moveTo {
                     lastRelevantCommand = .moveTo
