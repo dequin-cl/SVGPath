@@ -47,9 +47,10 @@ class Instruction {
         self.init(command: SVG.Command.closePath, correlation: SVG.Correlation.relative)
     }
     
-    public init (command: SVG.Command, correlation: SVG.Correlation) {
+    public init (command: SVG.Command, correlation: SVG.Correlation, point: CGPoint? = nil) {
         self.command = command
         self.correlation = correlation
+        self.point = point
     }
     
     private var digitAcumulator: String = ""

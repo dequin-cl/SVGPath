@@ -39,6 +39,7 @@ class SVGPath {
                 }
                 
                 if command == .closePath {
+                    addLineBetweenInitialAndLastPoint()
                     return
                 }
                 
@@ -74,5 +75,15 @@ class SVGPath {
         }
         
         return instruction
+    }
+    
+    private func addLineBetweenInitialAndLastPoint() {
+        // Current support is just for one subpath
+        guard let initial = instructions.first?.point,
+              let correlation = instructions.first?.correlation else {
+            return
+        }
+        
+        instructions.append(Instruction(command: .lineTo, correlation: correlation, point: initial))
     }
 }

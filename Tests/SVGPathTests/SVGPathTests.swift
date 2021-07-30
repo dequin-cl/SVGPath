@@ -247,25 +247,32 @@
             lineTo3.testHooks.addPoint(x: "-3.843936", y: "5.68391")
             let lineTo4 = Instruction(command: .lineTo, correlation: .relative)
             lineTo4.testHooks.addPoint(x: "2.52e-4", y: "1.13167")
+            let lineTo5 = Instruction(command: .lineTo, correlation: .relative)
+            lineTo5.testHooks.addPoint(x: "83.846207", y: "283.12668")
 
-            let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4]
+            let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4, lineTo5]
 
             try SVGAssertEqual(expected, result)
         }
         
+        func testDrawTriangle() throws {
+            let path = "M 100 100 L 300 100 L 200 300 z"
+            
+            let result = SVGPath(path).instructions
 
-        
-        
-//        func testMultipleMoveToSameCommand() {
-//            SVGPath("M1 2 3 4").instructions
-////        let actual:[SVGCommand] = SVGPath("M1 2 3 4").commands
-////        let expect:[SVGCommand] = [
-////            SVGCommand(1.0, 2.0, type: .move),
-////            SVGCommand(3.0, 4.0, type: .move)
-////        ]
-////
-////        assertCommandsEqual(actual, expect)
-//        }
+            let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+            moveTo.testHooks.addPoint(x: "100", y: "100")
+            let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo1.testHooks.addPoint(x: "300", y: "100")
+            let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo2.testHooks.addPoint(x: "200", y: "300")
+            let lineTo3 = Instruction(command: .lineTo, correlation: .absolute)
+            lineTo3.testHooks.addPoint(x: "100", y: "100")
+
+            let expected = [moveTo, lineTo1, lineTo2, lineTo3]
+
+            try SVGAssertEqual(expected, result)
+        }
     }
 
 
