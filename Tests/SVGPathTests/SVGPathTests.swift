@@ -316,6 +316,23 @@ final class SVGPathTests: XCTestCase {
 
         try SVGAssertEqual(expected, result)
     }
+    
+    // Vertical
+    
+    func test_createSquare() throws {
+        let path = "M 10 10 H 90 V 90 H 10 L 10 10"
+        let expected = [
+            moveTo((x: "10", y: "10")),
+            horizontalLine((x: "90", y: "10")),
+            verticalLine((x: "90", y: "90")),
+            horizontalLine((x: "10", y: "90")),
+            line((x: "10", y: "10")),
+        ]
+
+        let result = SVGPath(path).instructions
+
+        try SVGAssertEqual(expected, result)
+    }
 
     // MARK: - Helpers
 
@@ -331,6 +348,12 @@ final class SVGPathTests: XCTestCase {
         return horizontalLine
     }
 
+    private func verticalLine(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+        let verticalLine = Instruction(command: .verticalLineTo, correlation: correlation)
+        verticalLine.testHooks.addPoint(x: point.x, y: point.y)
+        return verticalLine
+    }
+    
     private func line(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
         let line = Instruction(command: .lineTo, correlation: correlation)
         line.testHooks.addPoint(x: point.x, y: point.y)

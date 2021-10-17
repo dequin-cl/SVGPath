@@ -47,6 +47,12 @@ class SVGPath {
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
                     addHorizontalInstruction(correlation: correlation)
                     lastRelevantCommand = .horizontalLineTo
+                case .verticalLineTo:
+                    if instructions.isEmpty { return }
+                    
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
+                    addVerticalInstruction(correlation: correlation)
+                    lastRelevantCommand = .verticalLineTo
                 default:
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
                     instructions.append(Instruction(command: command, correlation: correlation))
@@ -83,6 +89,14 @@ class SVGPath {
         horizontal.add(y: previousY)
 
         instructions.append(horizontal)
+    }
+    
+    private func addVerticalInstruction(correlation: SVG.Correlation) {
+        guard let previousX = instruction.point?.x else { return }
+        
+        let vertical = Instruction(command: .verticalLineTo, correlation: correlation)
+        vertical.add(x: previousX)
+        instructions.append(vertical)
     }
 
     private var lastInstruction: Instruction? { instructions.last }
