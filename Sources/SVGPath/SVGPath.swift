@@ -39,33 +39,30 @@ class SVGPath {
             } else if drawToCommands.contains(char) {
                 lastInstruction?.processSeparator()
                 
-                let correlation: SVG.Correlation = char.isUppercase ? .absolute: .relative
-                guard let command = SVG.Command(rawValue: Character(char.uppercased())) else {
-                    return
-                }
+                guard let command = SVG.Command(rawValue: Character(char.uppercased())) else { return }
                 
-                if command == .closePath {
+                switch command {
+                case .closePath:
                     addLineBetweenInitialAndLastPoint()
                     return
-                }
-                
-                if command == .horizontalLineTo || lastRelevantCommand == .horizontalLineTo {
+                case .horizontalLineTo:
                     if instructions.isEmpty { return }
                     
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute: .relative
                     addHorizontalInstruction(correlation: correlation)
                     lastRelevantCommand = .horizontalLineTo
-                } else {
-
+                default:
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute: .relative
                     instructions.append(Instruction(command: command, correlation: correlation))
-                    if command == .moveTo {
+                    switch command {
+                    case .moveTo:
                         lastRelevantCommand = .moveTo
-                    } else if command == .lineTo {
+                    case .lineTo:
                         lastRelevantCommand = .lineTo
-                    } else {
+                    default:
                         lastRelevantCommand = nil
                     }
                 }
-                                
 
             } else if char == period && instruction.isExpectingNumeric {
                 instruction.addDigit(char)
