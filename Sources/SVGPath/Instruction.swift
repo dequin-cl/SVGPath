@@ -22,22 +22,38 @@ public enum SVG {
 }
 
 private class Point {
-    private var digits: [Float] = []
-    var isFull: Bool { digits.count == 2 }
-    var cgvalue: CGPoint { CGPoint(x: CGFloat(digits[0]), y: CGFloat(digits[1])) }
+    private var coordinateX: CGFloat?
+    private var coordinateY: CGFloat?
+    var isFull: Bool { coordinateX != nil && coordinateY != nil }
+    var cgValue: CGPoint { CGPoint(x: coordinateX!, y: coordinateY!) }
     
     func clear() {
-        digits = []
+        coordinateX = nil
+        coordinateY = nil
     }
     
-    func addDigit(_ digit: String) {
-        if let value = Float(digit) {
-            digits.append(value)
+    func addValue(_ digit: String) {
+        if let float = Float(digit) {
+            if coordinateX == nil {
+                add(x: CGFloat(float))
+            } else {
+                add(y: CGFloat(float))
+            }
         }
     }
+    
+    func add(x:CGFloat) {
+        coordinateX = x
+    }
+
+    func add(y:CGFloat) {
+        coordinateY = y
+    }
+
 }
 
 class Instruction {
+    
     private(set) var point: CGPoint?
     private(set) var command: SVG.Command
     private(set) var correlation: SVG.Correlation
@@ -53,26 +69,34 @@ class Instruction {
         self.point = point
     }
     
-    private var digitAcumulator: String = ""
+    private var digitAccumulator: String = ""
     private var currentPoint = Point()
-    public func addDigit(_ digit: String.Element) {
+    func addDigit(_ digit: String.Element) {
         
-        digitAcumulator.append(digit)
+        digitAccumulator.append(digit)
     }
     
-    public func processSeparator() {
-        if !digitAcumulator.isEmpty {
-            currentPoint.addDigit(digitAcumulator)
-            digitAcumulator = ""
+    func add(x:CGFloat) {
+        currentPoint.add(x: x)
+    }
+
+    func add(y:CGFloat) {
+        currentPoint.add(y: y)
+    }
+
+    func processSeparator() {
+        if !digitAccumulator.isEmpty {
+            currentPoint.addValue(digitAccumulator)
+            digitAccumulator = ""
         }
         
         if currentPoint.isFull {
-            point = currentPoint.cgvalue
+            point = currentPoint.cgValue
             currentPoint.clear()
         }
     }
     var lastCharWasExponential: Bool { false }
-    var isExpectingNumeric: Bool { !digitAcumulator.isEmpty }
+    var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
     var hasCoordinate: Bool { point != nil }
 }
 
@@ -81,6 +105,15 @@ extension Instruction: Equatable {
         lhs.point == rhs.point &&
             lhs.command == rhs.command &&
             lhs.correlation == rhs.correlation
+    }
+}
+
+extension Instruction: CustomStringConvertible {
+    var description: String {
+        var description = ""
+        description += "\(command.rawValue)"
+        description += point?.debugDescription ?? ""
+        return description
     }
 }
 
@@ -115,14 +148,14 @@ extension Instruction: Equatable {
             }
 
             func addPoint(x: String, y: String) {
-                target.digitAcumulator = x
+                target.digitAccumulator = x
                 target.processSeparator()
-                target.digitAcumulator = y
+                target.digitAccumulator = y
                 target.processSeparator()
             }
 
             
-            var digitAcumulator:String { target.digitAcumulator }
+            var digitAccumulator:String { target.digitAccumulator }
         }
         
     }

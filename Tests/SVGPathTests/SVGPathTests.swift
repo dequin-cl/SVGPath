@@ -21,14 +21,14 @@
 
             instruction.addDigit("1")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "1")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "1")
             instruction.processSeparator()
             
             XCTAssertNil(instruction.point)
 
             instruction.addDigit("2")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "2")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "2")
             instruction.processSeparator()
             
             XCTAssertNotNil(instruction.point)
@@ -44,7 +44,7 @@
             instruction.addDigit("0")
             instruction.addDigit("0")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "100")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "100")
             instruction.processSeparator()
             
             XCTAssertNil(instruction.point)
@@ -52,7 +52,7 @@
             instruction.addDigit("2")
             instruction.addDigit("0")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "20")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "20")
             instruction.processSeparator()
             
             XCTAssertNotNil(instruction.point)
@@ -70,7 +70,7 @@
             instruction.addDigit("0")
             instruction.addDigit("0")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "-100")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "-100")
             instruction.processSeparator()
             
             XCTAssertNil(instruction.point)
@@ -80,7 +80,7 @@
             instruction.addDigit(".")
             instruction.addDigit("5")
 
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "20.5")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "20.5")
             instruction.processSeparator()
             
             XCTAssertNotNil(instruction.point)
@@ -100,7 +100,7 @@
             instruction.addDigit(".")
             instruction.addDigit("5")
             
-            XCTAssertEqual(instruction.testHooks.digitAcumulator, "11.5")
+            XCTAssertEqual(instruction.testHooks.digitAccumulator, "11.5")
             instruction.processSeparator()
             
             XCTAssertNil(instruction.point)
@@ -272,6 +272,77 @@
             let expected = [moveTo, lineTo1, lineTo2, lineTo3]
 
             try SVGAssertEqual(expected, result)
+        }
+        
+        // Horizontal
+        
+        func testHorizontalWithoutPreviewsPointReturnsEmpty() {
+            let path = "H 100z"
+            
+            let result = SVGPath(path).instructions
+            XCTAssertTrue(result.isEmpty)
+        }
+
+        func testHorizontalLine() throws {
+            let path = "M 100,100H 200z"
+            let expected = [
+                moveTo((x: "100", y: "100")),
+                horizontalLine((x: "200", y: "100")),
+                line((x: "100", y: "100"))
+            ]
+
+            let result = SVGPath(path).instructions
+
+            try SVGAssertEqual(expected, result)
+        }
+        
+        func testHorizontalLine2() throws {
+            let path = "M 100,100H 200 300z"
+            let expected = [
+                moveTo((x: "100", y: "100")),
+                horizontalLine((x: "200", y: "100")),
+                horizontalLine((x: "300", y: "100")),
+                line((x: "100", y: "100"))
+            ]
+
+            let result = SVGPath(path).instructions
+
+            try SVGAssertEqual(expected, result)
+        }
+        
+        
+        func testMultipleHorizontalLine() throws {
+            let path = "M 100,100H 200 300 400z"
+            let expected = [
+                moveTo((x: "100", y: "100")),
+                horizontalLine((x: "200", y: "100")),
+                horizontalLine((x: "300", y: "100")),
+                horizontalLine((x: "400", y: "100")),
+                line((x: "100", y: "100"))
+            ]
+
+            let result = SVGPath(path).instructions
+
+            try SVGAssertEqual(expected, result)
+        }
+        
+        // MARK: - Helpers
+        private func moveTo(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+            let moveTo = Instruction(command: .moveTo, correlation: correlation)
+            moveTo.testHooks.addPoint(x: point.x, y: point.y)
+            return moveTo
+        }
+        
+        private func horizontalLine(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+            let horizontalLine = Instruction(command: .horizontalLineTo, correlation: correlation)
+            horizontalLine.testHooks.addPoint(x: point.x, y: point.y)
+            return horizontalLine
+        }
+        
+        private func line(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+            let line = Instruction(command: .lineTo, correlation: correlation)
+            line.testHooks.addPoint(x: point.x, y: point.y)
+            return line
         }
     }
 
