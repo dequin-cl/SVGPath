@@ -10,14 +10,17 @@ let package = Package(
         .library(
             name: "SVGPath",
             type: .dynamic,
-            targets: ["SVGPath"]),
+            targets: ["SVGPath"]
+        ),
     ],
     targets: [
         .target(
             name: "SVGPath",
-            dependencies: []),
+            dependencies: []
+        ),
         .testTarget(
             name: "SVGPathTests",
-            dependencies: ["SVGPath"]),
+            dependencies: ["SVGPath"]
+        ),
     ]
 )

@@ -1,12 +1,11 @@
 import Foundation
 
 public enum SVG {
-
     public enum Correlation {
         case absolute
         case relative
     }
-    
+
     public enum Command: Character {
         case moveTo = "M"
         case lineTo = "L"
@@ -26,12 +25,12 @@ private class Point {
     private var coordinateY: CGFloat?
     var isFull: Bool { coordinateX != nil && coordinateY != nil }
     var cgValue: CGPoint { CGPoint(x: coordinateX!, y: coordinateY!) }
-    
+
     func clear() {
         coordinateX = nil
         coordinateY = nil
     }
-    
+
     func addValue(_ digit: String) {
         if let float = Float(digit) {
             if coordinateX == nil {
@@ -41,46 +40,44 @@ private class Point {
             }
         }
     }
-    
-    func add(x:CGFloat) {
+
+    func add(x: CGFloat) {
         coordinateX = x
     }
 
-    func add(y:CGFloat) {
+    func add(y: CGFloat) {
         coordinateY = y
     }
-
 }
 
 class Instruction {
-    
     private(set) var point: CGPoint?
     private(set) var command: SVG.Command
     private(set) var correlation: SVG.Correlation
-    
-    //MARK: - Initializers
-    public convenience init () {
+
+    // MARK: - Initializers
+
+    public convenience init() {
         self.init(command: SVG.Command.closePath, correlation: SVG.Correlation.relative)
     }
-    
-    public init (command: SVG.Command, correlation: SVG.Correlation, point: CGPoint? = nil) {
+
+    public init(command: SVG.Command, correlation: SVG.Correlation, point: CGPoint? = nil) {
         self.command = command
         self.correlation = correlation
         self.point = point
     }
-    
+
     private var digitAccumulator: String = ""
     private var currentPoint = Point()
     func addDigit(_ digit: String.Element) {
-        
         digitAccumulator.append(digit)
     }
-    
-    func add(x:CGFloat) {
+
+    func add(x: CGFloat) {
         currentPoint.add(x: x)
     }
 
-    func add(y:CGFloat) {
+    func add(y: CGFloat) {
         currentPoint.add(y: y)
     }
 
@@ -89,12 +86,13 @@ class Instruction {
             currentPoint.addValue(digitAccumulator)
             digitAccumulator = ""
         }
-        
+
         if currentPoint.isFull {
             point = currentPoint.cgValue
             currentPoint.clear()
         }
     }
+
     var lastCharWasExponential: Bool { false }
     var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
     var hasCoordinate: Bool { point != nil }
@@ -119,21 +117,20 @@ extension Instruction: CustomStringConvertible {
 
 // MARK: - CGPoint helpers
 
-//private func +(a:CGPoint, b:CGPoint) -> CGPoint {
+// private func +(a:CGPoint, b:CGPoint) -> CGPoint {
 //    return CGPoint(x: a.x + b.x, y: a.y + b.y)
-//}
+// }
 
-//private func -(a:CGPoint, b:CGPoint) -> CGPoint {
+// private func -(a:CGPoint, b:CGPoint) -> CGPoint {
 //    return CGPoint(x: a.x - b.x, y: a.y - b.y)
-//}
-
+// }
 
 // MARK: - TestHooks
 
 #if DEBUG
     extension Instruction {
         var testHooks: TestHooks {
-            return TestHooks(target: self)
+            TestHooks(target: self)
         }
 
         struct TestHooks {
@@ -142,7 +139,7 @@ extension Instruction: CustomStringConvertible {
             fileprivate init(target: Instruction) {
                 self.target = target
             }
-            
+
             func addPoint(x: CGFloat, y: CGFloat) {
                 target.point = CGPoint(x: x, y: y)
             }
@@ -154,9 +151,7 @@ extension Instruction: CustomStringConvertible {
                 target.processSeparator()
             }
 
-            
-            var digitAccumulator:String { target.digitAccumulator }
+            var digitAccumulator: String { target.digitAccumulator }
         }
-        
     }
 #endif
