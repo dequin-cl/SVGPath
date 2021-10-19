@@ -111,8 +111,9 @@ extension Instruction: Equatable {
 
 extension Instruction: CustomStringConvertible {
     var description: String {
+        let command = correlation == .relative ? command.rawValue.lowercased(): command.rawValue.uppercased()
         var description = ""
-        description += "\(command.rawValue)"
+        description += "\(command)"
         description += endPoint?.debugDescription ?? ""
         return description
     }

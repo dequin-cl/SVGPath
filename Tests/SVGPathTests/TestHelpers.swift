@@ -13,7 +13,7 @@ func SVGAssertEqual(_ expected: [Instruction], _ received: [Instruction], file: 
 
     for i in 0 ..< expected.count {
         XCTAssertEqual(expected[i].command, received[i].command, "command should be the same", file: file, line: line)
-        XCTAssertEqual(expected[i].correlation, received[i].correlation, "correlation should be the same", file: file, line: line)
+        XCTAssertEqual(expected[i].correlation, received[i].correlation, "correlation should be the same. Expected: \(expected[i]) but received: \(received[i])", file: file, line: line)
 
         XCTAssertEqual(expected[i].endPoint, received[i].endPoint, "point should be the same. Expected: \(expected) but received: \(received)", file: file, line: line)
 

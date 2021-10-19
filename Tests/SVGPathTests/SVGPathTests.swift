@@ -109,80 +109,54 @@ final class SVGPathTests: XCTestCase {
     }
 
     func testSingleMoveTo() throws {
+        let expected = [moveTo((x: 1.0, y: 2.0))]
         let result = SVGPath("M1 2").instructions
-
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addEndPoint(x: 1.0, y: 2.0)
-        let expected = [instruction]
 
         try SVGAssertEqual(expected, result)
     }
 
     func testSingleMoveToNegativeValues() throws {
+        let expected = [moveTo((x: 1.0, y: -200.0))]
         let result = SVGPath("M1 -200").instructions
-
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addEndPoint(x: 1.0, y: -200.0)
-        let expected = [instruction]
 
         try SVGAssertEqual(expected, result)
     }
 
     func testSingleMoveToFartherPoint() throws {
+        let expected = [moveTo((x: 100.0, y: 200.0))]
         let result = SVGPath("M100 200").instructions
-
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addEndPoint(x: 100.0, y: 200.0)
-
-        let expected = [instruction]
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveToWithLineToAbsolute() throws {
+        let expected = [moveTo((x: 1.0, y: 2.0)), line((x: 3.0, y: 4.0))]
         let result = SVGPath("M1 2 3 4").instructions
-
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addEndPoint(x: 1.0, y: 2.0)
-        let lineTo = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo.testHooks.addEndPoint(x: 3.0, y: 4.0)
-        let expected = [moveTo, lineTo]
-
-        XCTAssertEqual(result[0], moveTo)
-        XCTAssertEqual(result[1], lineTo)
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveToWithLineToRelative() throws {
+        let expected = [
+            moveTo((x: 1.0, y: 1.0)),
+            moveTo((x: 1.0, y: 2.0), correlation: .relative),
+            line((x: 3.0, y: 4.0), correlation: .relative)
+        ]
         let result = SVGPath("M1 1 m1 2 3 4").instructions
-
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addEndPoint(x: 1.0, y: 1.0)
-        let moveToRelative = Instruction(command: .moveTo, correlation: .relative)
-        moveToRelative.testHooks.addEndPoint(x: 1.0, y: 2.0)
-        let lineTo = Instruction(command: .lineTo, correlation: .relative)
-        lineTo.testHooks.addEndPoint(x: 3.0, y: 4.0)
-        let expected = [moveTo, moveToRelative, lineTo]
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveToWithLineToAllAbsolute() throws {
+        let expected = [moveTo((x: 1.0, y: 1.0)), line((x: 1.0, y: 2.0)), line((x: 3.0, y: 4.0))]
         let result = SVGPath("M1 1 1 2 3 4").instructions
-
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addEndPoint(x: 1.0, y: 1.0)
-        let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addEndPoint(x: 1.0, y: 2.0)
-        let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addEndPoint(x: 3.0, y: 4.0)
-        let expected = [moveTo, lineTo1, lineTo2]
 
         try SVGAssertEqual(expected, result)
     }
 
     //  If a relative moveto (m) appears as the first element of the path, then it is treated as a pair of absolute coordinates. In this case, subsequent pairs of coordinates are treated as relative even though the initial moveto is interpreted as an absolute moveto.
+    
+    
     func testSpacesIrrelevance() throws {
         let lhs = SVGPath("M 100 100 L 200 200").instructions
         let rhs = SVGPath("M100 100L200 200").instructions
@@ -195,15 +169,8 @@ final class SVGPathTests: XCTestCase {
     // "M 100 200 L 200 100 -100 -200"
 
     func testMoveLinesAndNegativeValues() throws {
+        let expected = [moveTo((x: 100, y: 200)), line((x: 200, y: 100)), line((x: -100, y: -200))]
         let result = SVGPath("M 100 200 L 200 100 -100 -200").instructions
-
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addEndPoint(x: 100, y: 200)
-        let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addEndPoint(x: 200, y: 100)
-        let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addEndPoint(x: -100, y: -200)
-        let expected = [moveTo, lineTo1, lineTo2]
 
         try SVGAssertEqual(expected, result)
     }
@@ -224,8 +191,6 @@ final class SVGPathTests: XCTestCase {
     func testExponentialNumber() throws {
         let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
 
-        let result = SVGPath(path).instructions
-
         let moveTo = Instruction(command: .moveTo, correlation: .relative)
         moveTo.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
         let lineTo1 = Instruction(command: .lineTo, correlation: .relative)
@@ -241,24 +206,16 @@ final class SVGPathTests: XCTestCase {
 
         let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4, lineTo5]
 
+        let result = SVGPath(path).instructions
+
         try SVGAssertEqual(expected, result)
     }
 
     func testDrawTriangle() throws {
         let path = "M 100 100 L 300 100 L 200 300 z"
+        let expected = [moveTo((100, 100)), line((300, 100)), line((200, 300)), line((100, 100))]
 
         let result = SVGPath(path).instructions
-
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addEndPoint(x: "100", y: "100")
-        let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addEndPoint(x: "300", y: "100")
-        let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addEndPoint(x: "200", y: "300")
-        let lineTo3 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo3.testHooks.addEndPoint(x: "100", y: "100")
-
-        let expected = [moveTo, lineTo1, lineTo2, lineTo3]
 
         try SVGAssertEqual(expected, result)
     }
