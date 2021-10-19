@@ -51,7 +51,10 @@ private class Point {
 }
 
 class Instruction {
-    private(set) var point: CGPoint?
+    private(set) var endPoint: CGPoint?
+    private(set) var control1: CGPoint?
+    private(set) var control2: CGPoint?
+
     private(set) var command: SVG.Command
     private(set) var correlation: SVG.Correlation
 
@@ -64,7 +67,7 @@ class Instruction {
     public init(command: SVG.Command, correlation: SVG.Correlation, point: CGPoint? = nil) {
         self.command = command
         self.correlation = correlation
-        self.point = point
+        endPoint = point
     }
 
     private var digitAccumulator: String = ""
@@ -88,19 +91,19 @@ class Instruction {
         }
 
         if currentPoint.isFull {
-            point = currentPoint.cgValue
+            endPoint = currentPoint.cgValue
             currentPoint.clear()
         }
     }
 
     var lastCharWasExponential: Bool { false }
     var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
-    var hasCoordinate: Bool { point != nil }
+    var hasCoordinate: Bool { endPoint != nil }
 }
 
 extension Instruction: Equatable {
     static func == (lhs: Instruction, rhs: Instruction) -> Bool {
-        lhs.point == rhs.point &&
+        lhs.endPoint == rhs.endPoint &&
             lhs.command == rhs.command &&
             lhs.correlation == rhs.correlation
     }
@@ -110,7 +113,7 @@ extension Instruction: CustomStringConvertible {
     var description: String {
         var description = ""
         description += "\(command.rawValue)"
-        description += point?.debugDescription ?? ""
+        description += endPoint?.debugDescription ?? ""
         return description
     }
 }
@@ -140,11 +143,11 @@ extension Instruction: CustomStringConvertible {
                 self.target = target
             }
 
-            func addPoint(x: CGFloat, y: CGFloat) {
-                target.point = CGPoint(x: x, y: y)
+            func addEndPoint(x: CGFloat, y: CGFloat) {
+                target.endPoint = CGPoint(x: x, y: y)
             }
 
-            func addPoint(x: String, y: String) {
+            func addEndPoint(x: String, y: String) {
                 target.digitAccumulator = x
                 target.processSeparator()
                 target.digitAccumulator = y

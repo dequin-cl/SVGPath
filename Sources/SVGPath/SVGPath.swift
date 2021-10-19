@@ -22,7 +22,7 @@ class SVGPath {
                         instructions.append(Instruction(command: .lineTo, correlation: instruction.correlation))
                     case .horizontalLineTo:
                         let newInstruction = Instruction(command: .horizontalLineTo, correlation: instruction.correlation)
-                        newInstruction.add(y: instruction.point!.y)
+                        newInstruction.add(y: instruction.endPoint!.y)
                         instructions.append(newInstruction)
                     default:
                         print("Missing implementation")
@@ -42,7 +42,7 @@ class SVGPath {
                     addLineBetweenInitialAndLastPoint()
                 case .horizontalLineTo, .verticalLineTo:
                     if instructions.isEmpty { return }
-                    
+
                     add(command: command, char: char)
                     lastRelevantCommand = command
                 default:
@@ -73,21 +73,21 @@ class SVGPath {
         }
         instruction.processSeparator()
     }
-    
+
     private func add(command: SVG.Command, char: String.Element) {
         let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
         let newInstruction = Instruction(command: command, correlation: correlation)
-        
+
         switch command {
         case .horizontalLineTo:
-            guard let previousY = instruction.point?.y else { return }
+            guard let previousY = instruction.endPoint?.y else { return }
             newInstruction.add(y: previousY)
         case .verticalLineTo:
-            guard let previousX = instruction.point?.x else { return }
+            guard let previousX = instruction.endPoint?.x else { return }
             newInstruction.add(x: previousX)
         default: return
         }
-        
+
         instructions.append(newInstruction)
     }
 
@@ -103,7 +103,7 @@ class SVGPath {
 
     private func addLineBetweenInitialAndLastPoint() {
         // Current support is just for one subpath
-        guard let initial = instructions.first?.point,
+        guard let initial = instructions.first?.endPoint,
               let correlation = instructions.first?.correlation
         else {
             return

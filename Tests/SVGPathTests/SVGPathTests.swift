@@ -6,38 +6,35 @@ final class SVGPathTests: XCTestCase {
         let instruction = Instruction()
         XCTAssertEqual(instruction.command, .closePath)
         XCTAssertEqual(instruction.correlation, .relative)
-        XCTAssertNil(instruction.point)
-//            XCTAssertEqual(instruction.point, .zero)
-//            XCTAssertEqual(instruction.control1, .zero)
-//            XCTAssertEqual(instruction.control2, .zero)
+        XCTAssertNil(instruction.endPoint)
     }
 
     func testBuildAbsoluteMoveToInstructionA() {
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("1")
 
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "1")
         instruction.processSeparator()
 
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("2")
 
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "2")
         instruction.processSeparator()
 
-        XCTAssertNotNil(instruction.point)
+        XCTAssertNotNil(instruction.endPoint)
     }
 
     func testBuildAbsoluteMoveToInstruction() {
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("1")
         instruction.addDigit("0")
@@ -46,7 +43,7 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "100")
         instruction.processSeparator()
 
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("2")
         instruction.addDigit("0")
@@ -54,14 +51,14 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "20")
         instruction.processSeparator()
 
-        XCTAssertNotNil(instruction.point)
+        XCTAssertNotNil(instruction.endPoint)
     }
 
     func testBuildAbsoluteMoveToInstructionWithNegative() {
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("-")
         instruction.addDigit("1")
@@ -71,7 +68,7 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "-100")
         instruction.processSeparator()
 
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("2")
         instruction.addDigit("0")
@@ -81,15 +78,15 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "20.5")
         instruction.processSeparator()
 
-        XCTAssertNotNil(instruction.point)
-        XCTAssertEqual(instruction.point, CGPoint(x: -100, y: 20.5))
+        XCTAssertNotNil(instruction.endPoint)
+        XCTAssertEqual(instruction.endPoint, CGPoint(x: -100, y: 20.5))
     }
 
     func testBuildAbsoluteMoveToInstructionWithDecimals() {
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("1")
         instruction.addDigit("1")
@@ -99,7 +96,7 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.testHooks.digitAccumulator, "11.5")
         instruction.processSeparator()
 
-        XCTAssertNil(instruction.point)
+        XCTAssertNil(instruction.endPoint)
 
         instruction.addDigit("2")
         instruction.addDigit(".")
@@ -107,15 +104,15 @@ final class SVGPathTests: XCTestCase {
 
         instruction.processSeparator()
 
-        XCTAssertNotNil(instruction.point)
-        XCTAssertEqual(instruction.point, CGPoint(x: 11.5, y: 2.0))
+        XCTAssertNotNil(instruction.endPoint)
+        XCTAssertEqual(instruction.endPoint, CGPoint(x: 11.5, y: 2.0))
     }
 
     func testSingleMoveTo() throws {
         let result = SVGPath("M1 2").instructions
 
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addPoint(x: 1.0, y: 2.0)
+        instruction.testHooks.addEndPoint(x: 1.0, y: 2.0)
         let expected = [instruction]
 
         try SVGAssertEqual(expected, result)
@@ -125,7 +122,7 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M1 -200").instructions
 
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addPoint(x: 1.0, y: -200.0)
+        instruction.testHooks.addEndPoint(x: 1.0, y: -200.0)
         let expected = [instruction]
 
         try SVGAssertEqual(expected, result)
@@ -135,7 +132,7 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M100 200").instructions
 
         let instruction = Instruction(command: .moveTo, correlation: .absolute)
-        instruction.testHooks.addPoint(x: 100.0, y: 200.0)
+        instruction.testHooks.addEndPoint(x: 100.0, y: 200.0)
 
         let expected = [instruction]
 
@@ -146,9 +143,9 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M1 2 3 4").instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addPoint(x: 1.0, y: 2.0)
+        moveTo.testHooks.addEndPoint(x: 1.0, y: 2.0)
         let lineTo = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo.testHooks.addPoint(x: 3.0, y: 4.0)
+        lineTo.testHooks.addEndPoint(x: 3.0, y: 4.0)
         let expected = [moveTo, lineTo]
 
         XCTAssertEqual(result[0], moveTo)
@@ -161,11 +158,11 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M1 1 m1 2 3 4").instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addPoint(x: 1.0, y: 1.0)
+        moveTo.testHooks.addEndPoint(x: 1.0, y: 1.0)
         let moveToRelative = Instruction(command: .moveTo, correlation: .relative)
-        moveToRelative.testHooks.addPoint(x: 1.0, y: 2.0)
+        moveToRelative.testHooks.addEndPoint(x: 1.0, y: 2.0)
         let lineTo = Instruction(command: .lineTo, correlation: .relative)
-        lineTo.testHooks.addPoint(x: 3.0, y: 4.0)
+        lineTo.testHooks.addEndPoint(x: 3.0, y: 4.0)
         let expected = [moveTo, moveToRelative, lineTo]
 
         try SVGAssertEqual(expected, result)
@@ -175,11 +172,11 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M1 1 1 2 3 4").instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addPoint(x: 1.0, y: 1.0)
+        moveTo.testHooks.addEndPoint(x: 1.0, y: 1.0)
         let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addPoint(x: 1.0, y: 2.0)
+        lineTo1.testHooks.addEndPoint(x: 1.0, y: 2.0)
         let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addPoint(x: 3.0, y: 4.0)
+        lineTo2.testHooks.addEndPoint(x: 3.0, y: 4.0)
         let expected = [moveTo, lineTo1, lineTo2]
 
         try SVGAssertEqual(expected, result)
@@ -201,11 +198,11 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath("M 100 200 L 200 100 -100 -200").instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addPoint(x: 100, y: 200)
+        moveTo.testHooks.addEndPoint(x: 100, y: 200)
         let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addPoint(x: 200, y: 100)
+        lineTo1.testHooks.addEndPoint(x: 200, y: 100)
         let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addPoint(x: -100, y: -200)
+        lineTo2.testHooks.addEndPoint(x: -100, y: -200)
         let expected = [moveTo, lineTo1, lineTo2]
 
         try SVGAssertEqual(expected, result)
@@ -230,17 +227,17 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath(path).instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .relative)
-        moveTo.testHooks.addPoint(x: "83.846207", y: "283.12668")
+        moveTo.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
         let lineTo1 = Instruction(command: .lineTo, correlation: .relative)
-        lineTo1.testHooks.addPoint(x: "15.992614", y: "-15.1728")
+        lineTo1.testHooks.addEndPoint(x: "15.992614", y: "-15.1728")
         let lineTo2 = Instruction(command: .lineTo, correlation: .relative)
-        lineTo2.testHooks.addPoint(x: "-2.513154", y: "3.79032")
+        lineTo2.testHooks.addEndPoint(x: "-2.513154", y: "3.79032")
         let lineTo3 = Instruction(command: .lineTo, correlation: .relative)
-        lineTo3.testHooks.addPoint(x: "-3.843936", y: "5.68391")
+        lineTo3.testHooks.addEndPoint(x: "-3.843936", y: "5.68391")
         let lineTo4 = Instruction(command: .lineTo, correlation: .relative)
-        lineTo4.testHooks.addPoint(x: "2.52e-4", y: "1.13167")
+        lineTo4.testHooks.addEndPoint(x: "2.52e-4", y: "1.13167")
         let lineTo5 = Instruction(command: .lineTo, correlation: .relative)
-        lineTo5.testHooks.addPoint(x: "83.846207", y: "283.12668")
+        lineTo5.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
 
         let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4, lineTo5]
 
@@ -253,13 +250,13 @@ final class SVGPathTests: XCTestCase {
         let result = SVGPath(path).instructions
 
         let moveTo = Instruction(command: .moveTo, correlation: .absolute)
-        moveTo.testHooks.addPoint(x: "100", y: "100")
+        moveTo.testHooks.addEndPoint(x: "100", y: "100")
         let lineTo1 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo1.testHooks.addPoint(x: "300", y: "100")
+        lineTo1.testHooks.addEndPoint(x: "300", y: "100")
         let lineTo2 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo2.testHooks.addPoint(x: "200", y: "300")
+        lineTo2.testHooks.addEndPoint(x: "200", y: "300")
         let lineTo3 = Instruction(command: .lineTo, correlation: .absolute)
-        lineTo3.testHooks.addPoint(x: "100", y: "100")
+        lineTo3.testHooks.addEndPoint(x: "100", y: "100")
 
         let expected = [moveTo, lineTo1, lineTo2, lineTo3]
 
@@ -278,9 +275,9 @@ final class SVGPathTests: XCTestCase {
     func testHorizontalLine() throws {
         let path = "M 100,100H 200z"
         let expected = [
-            moveTo((x: "100", y: "100")),
-            horizontalLine((x: "200", y: "100")),
-            line((x: "100", y: "100")),
+            moveTo((x: 100, y: 100)),
+            horizontalLine((x: 200, y: 100)),
+            line((x: 100, y: 100)),
         ]
 
         let result = SVGPath(path).instructions
@@ -291,10 +288,10 @@ final class SVGPathTests: XCTestCase {
     func testHorizontalLine2() throws {
         let path = "M 100,100H 200 300z"
         let expected = [
-            moveTo((x: "100", y: "100")),
-            horizontalLine((x: "200", y: "100")),
-            horizontalLine((x: "300", y: "100")),
-            line((x: "100", y: "100")),
+            moveTo((x: 100, y: 100)),
+            horizontalLine((x: 200, y: 100)),
+            horizontalLine((x: 300, y: 100)),
+            line((x: 100, y: 100)),
         ]
 
         let result = SVGPath(path).instructions
@@ -305,28 +302,28 @@ final class SVGPathTests: XCTestCase {
     func testMultipleHorizontalLine() throws {
         let path = "M 100,100H 200 300 400z"
         let expected = [
-            moveTo((x: "100", y: "100")),
-            horizontalLine((x: "200", y: "100")),
-            horizontalLine((x: "300", y: "100")),
-            horizontalLine((x: "400", y: "100")),
-            line((x: "100", y: "100")),
+            moveTo((x: 100, y: 100)),
+            horizontalLine((x: 200, y: 100)),
+            horizontalLine((x: 300, y: 100)),
+            horizontalLine((x: 400, y: 100)),
+            line((x: 100, y: 100)),
         ]
 
         let result = SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
-    
+
     // Vertical
-    
+
     func test_createSquare() throws {
         let path = "M 10 10 H 90 V 90 H 10 L 10 10"
         let expected = [
-            moveTo((x: "10", y: "10")),
-            horizontalLine((x: "90", y: "10")),
-            verticalLine((x: "90", y: "90")),
-            horizontalLine((x: "10", y: "90")),
-            line((x: "10", y: "10")),
+            moveTo((x: 10, y: 10)),
+            horizontalLine((x: 90, y: 10)),
+            verticalLine((x: 90, y: 90)),
+            horizontalLine((x: 10, y: 90)),
+            line((x: 10, y: 10)),
         ]
 
         let result = SVGPath(path).instructions
@@ -334,29 +331,95 @@ final class SVGPathTests: XCTestCase {
         try SVGAssertEqual(expected, result)
     }
 
+    func test_closeLoop_CreateSquare() throws {
+        let path = "M 10 10 H 90 V 90 H 10z"
+        let expected = [
+            moveTo((x: 10, y: 10)),
+            horizontalLine((x: 90, y: 10)),
+            verticalLine((x: 90, y: 90)),
+            horizontalLine((x: 10, y: 90)),
+            line((x: 10, y: 10)),
+        ]
+
+        let result = SVGPath(path).instructions
+
+        try SVGAssertEqual(expected, result)
+    }
+
+    func test_noClose_leftSquareUnfinished() throws {
+        let path = "M 10 10 H 90 V 90 H 10"
+        let expected = [
+            moveTo((x: 10, y: 10)),
+            horizontalLine((x: 90, y: 10)),
+            verticalLine((x: 90, y: 90)),
+            horizontalLine((x: 10, y: 90)),
+        ]
+
+        let result = SVGPath(path).instructions
+
+        try SVGAssertEqual(expected, result)
+    }
+
+//    func test_simpleBezier() throws {
+//        let path = "M 10 10 C 20 20, 40 20, 50 10"
+//        let expected = [
+//            moveTo((x: 10, y: 10)),
+//            bezier(end:(x: 50, y: 10), control1:(x: 20, y: 20), control2: (x: 40, y: 20))
+//        ]
+//
+//        let result = SVGPath(path).instructions
+//
+//        try SVGAssertEqual(expected, result)
+//    }
+
+//    func test_somethingElse() {
+//        let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5A37.79,37.79,0,0,0,22.76,18.87a81.39,81.39,0,0,0,7.11-16.3s-7.65,17.81-9.66,22.79-1.85,7.21-.54,8,4.63.72,11-7.55"
+//
+//        let result = SVGPath(path).instructions
+//
+//        print(result)
+//    }
+
+    // s-5.1-3-13.29,1.08   s (-5.1, -3)  (-13.29, 1.08)
+    // S.28,17.63.66,27.06  S (0.28, 17.63)  (0.66, 27.06)
+
     // MARK: - Helpers
 
-    private func moveTo(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func cubicBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+        let cubicBezierCurve = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
+        cubicBezierCurve.testHooks.addEndPoint(x: to.x, y: to.y)
+        cubicBezierCurve.testHooks.addEndPoint(x: control1.x, y: control1.y)
+        cubicBezierCurve.testHooks.addEndPoint(x: control2.x, y: control2.y)
+        return cubicBezierCurve
+    }
+
+    private func moveTo(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
         let moveTo = Instruction(command: .moveTo, correlation: correlation)
-        moveTo.testHooks.addPoint(x: point.x, y: point.y)
+        moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
         return moveTo
     }
 
-    private func horizontalLine(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func horizontalLine(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
         let horizontalLine = Instruction(command: .horizontalLineTo, correlation: correlation)
-        horizontalLine.testHooks.addPoint(x: point.x, y: point.y)
+        horizontalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return horizontalLine
     }
 
-    private func verticalLine(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func verticalLine(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
         let verticalLine = Instruction(command: .verticalLineTo, correlation: correlation)
-        verticalLine.testHooks.addPoint(x: point.x, y: point.y)
+        verticalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return verticalLine
     }
-    
-    private func line(_ point: (x: String, y: String), correlation: SVG.Correlation = .absolute) -> Instruction {
+
+    private func line(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
         let line = Instruction(command: .lineTo, correlation: correlation)
-        line.testHooks.addPoint(x: point.x, y: point.y)
+        line.testHooks.addEndPoint(x: point.x, y: point.y)
+        return line
+    }
+
+    private func bezier(end: (x: CGFloat, y: CGFloat), control1 _: (x: CGFloat, y: CGFloat), control2 _: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+        let line = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
+        line.testHooks.addEndPoint(x: end.x, y: end.y)
         return line
     }
 }
