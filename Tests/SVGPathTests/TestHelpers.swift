@@ -20,10 +20,26 @@ func SVGAssertEqual(_ expected: [Instruction], _ received: [Instruction], file: 
             line: line
         )
 
-        XCTAssertEqual(expected[i].endPoint, received[i].endPoint, "point should be the same. Expected: \(expected) but received: \(received)", file: file, line: line)
-
-//        XCTAssertEqual(a[i].point,    b[i].point,    "points should be the same", file: file, line: line)
-//        XCTAssertEqual(a[i].control1, b[i].control1, "control point 1 should be the same", file: file, line: line)
-//        XCTAssertEqual(a[i].control2, b[i].control2, "control point 2 should be the same", file: file, line: line)
+        XCTAssertEqual(
+            expected[i].endPoint,
+            received[i].endPoint,
+            "Expected endPoint: \(expected[i].endPoint!) but received: \(String(describing: received[i].endPoint))",
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            expected[i].control1,
+            received[i].control1,
+            "Expected control1: \(expected[i].control1!) but received: \(String(describing: received[i].control1))",
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            expected[i].control2,
+            received[i].control2,
+            "Expected control2: \(expected[i].control2!) but received: \(String(describing: received[i].control2))",
+            file: file,
+            line: line
+        )
     }
 }

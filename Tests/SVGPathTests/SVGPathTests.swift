@@ -139,8 +139,8 @@ final class SVGPathTests: XCTestCase {
     func testMoveToWithLineToRelative() throws {
         let expected = [
             moveTo((x: 1.0, y: 1.0)),
-            moveTo((x: 1.0, y: 2.0), correlation: .relative),
-            line((x: 3.0, y: 4.0), correlation: .relative),
+            moveTo((x: 1.0, y: 2.0), .relative),
+            line((x: 3.0, y: 4.0), .relative),
         ]
         let result = SVGPath("M1 1 m1 2 3 4").instructions
 
@@ -157,9 +157,9 @@ final class SVGPathTests: XCTestCase {
     func test_startRelativeMove_deliversAbsoluteMoveAndRelativesSubsequentInstructions() throws {
         let path = "m 100 200 200 100 -100 -200"
         let expected = [
-            moveTo((100, 200), correlation: .absolute),
-            line((200, 100), correlation: .relative),
-            line((-100, -200), correlation: .relative),
+            moveTo((100, 200), .absolute),
+            line((200, 100), .relative),
+            line((-100, -200), .relative),
         ]
         let result = SVGPath(path).instructions
 
@@ -175,8 +175,8 @@ final class SVGPathTests: XCTestCase {
 
     func test_spaces_doesNotChangeInstructions() throws {
         let expected = [
-            moveTo((100, 100), correlation: .absolute),
-            line((200, 200), correlation: .absolute),
+            moveTo((100, 100), .absolute),
+            line((200, 200), .absolute),
         ]
         let result = SVGPath("M 100 100 L 200 200").instructions
         try SVGAssertEqual(expected, result)
@@ -334,67 +334,64 @@ final class SVGPathTests: XCTestCase {
         try SVGAssertEqual(expected, result)
     }
 
-//    func test_simpleBezier() throws {
-//        let path = "M 10 10 C 20 20, 40 20, 50 10"
-//        let expected = [
-//            moveTo((x: 10, y: 10)),
-//            bezier(end:(x: 50, y: 10), control1:(x: 20, y: 20), control2: (x: 40, y: 20))
-//        ]
-//
-//        let result = SVGPath(path).instructions
-//
-//        try SVGAssertEqual(expected, result)
-//    }
+    func test_simpleBezier() throws {
+        let path = "M 10 10 C 20 20, 40 20, 50 10"
+        let expected = [
+            moveTo((x: 10, y: 10), .absolute),
+            cubicBezierCurve((x: 50, y: 10), control1:(x: 20, y: 20), control2: (x: 40, y: 20), .absolute)
+        ]
 
-//    func test_somethingElse() {
-//        let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5A37.79,37.79,0,0,0,22.76,18.87a81.39,81.39,0,0,0,7.11-16.3s-7.65,17.81-9.66,22.79-1.85,7.21-.54,8,4.63.72,11-7.55"
-//
-//        let result = SVGPath(path).instructions
-//
-//        print(result)
-//    }
+        let result = SVGPath(path).instructions
 
-    // s-5.1-3-13.29,1.08   s (-5.1, -3)  (-13.29, 1.08)
-    // S.28,17.63.66,27.06  S (0.28, 17.63)  (0.66, 27.06)
-
+        try SVGAssertEqual(expected, result)
+    }
+    
     // MARK: - Helpers
 
-    private func cubicBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
-        let cubicBezierCurve = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
-        cubicBezierCurve.testHooks.addEndPoint(x: to.x, y: to.y)
-        cubicBezierCurve.testHooks.addEndPoint(x: control1.x, y: control1.y)
-        cubicBezierCurve.testHooks.addEndPoint(x: control2.x, y: control2.y)
-        return cubicBezierCurve
-    }
-
-    private func moveTo(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func moveTo(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let moveTo = Instruction(command: .moveTo, correlation: correlation)
         moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
         return moveTo
     }
 
-    private func horizontalLine(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func moveTo(_ point: (x: String, y: String), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+        let moveTo = Instruction(command: .moveTo, correlation: correlation)
+        moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
+        return moveTo
+    }
+    
+    private func horizontalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let horizontalLine = Instruction(command: .horizontalLineTo, correlation: correlation)
         horizontalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return horizontalLine
     }
 
-    private func verticalLine(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func verticalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let verticalLine = Instruction(command: .verticalLineTo, correlation: correlation)
         verticalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return verticalLine
     }
 
-    private func line(_ point: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func line(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let line = Instruction(command: .lineTo, correlation: correlation)
         line.testHooks.addEndPoint(x: point.x, y: point.y)
         return line
     }
 
-    private func bezier(end: (x: CGFloat, y: CGFloat), control1 _: (x: CGFloat, y: CGFloat), control2 _: (x: CGFloat, y: CGFloat), correlation: SVG.Correlation = .absolute) -> Instruction {
-        let line = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
-        line.testHooks.addEndPoint(x: end.x, y: end.y)
-        return line
+    private func cubicBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+        let instruction = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
+        instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+        instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+        instruction.testHooks.addControl2(x: control2.x, y: control2.y)
+        return instruction
+    }
+    
+    private func bezierSmooth(end: (x: CGFloat, y: CGFloat), control1 : (x: CGFloat, y: CGFloat), control2 : (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+        let instruction = Instruction(command: .cubicBezierSmoothCurveTo, correlation: correlation)
+        instruction.testHooks.addEndPoint(x: end.x, y: end.y)
+        instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+        instruction.testHooks.addControl2(x: control2.x, y: control2.y)
+        return instruction
     }
 }
 

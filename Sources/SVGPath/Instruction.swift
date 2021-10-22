@@ -93,7 +93,18 @@ class Instruction {
         }
 
         if currentPoint.isFull {
-            endPoint = currentPoint.cgValue
+            if self.command == .cubicBezierCurveTo {
+                if control1 == nil {
+                    control1 = currentPoint.cgValue
+                } else if control2 == nil {
+                    control2 = currentPoint.cgValue
+                } else {
+                    endPoint = currentPoint.cgValue
+                }
+            } else {
+                endPoint = currentPoint.cgValue
+            }
+            
             currentPoint.clear()
         }
     }
@@ -158,6 +169,14 @@ extension Instruction: CustomStringConvertible {
             }
 
             var digitAccumulator: String { target.digitAccumulator }
+            
+            func addControl1(x: CGFloat, y: CGFloat) {
+                target.control1 = CGPoint(x: x, y: y)
+            }
+
+            func addControl2(x: CGFloat, y: CGFloat) {
+                target.control2 = CGPoint(x: x, y: y)
+            }
         }
     }
 #endif
