@@ -55,7 +55,7 @@ class SVGPath {
                     } else {
                         instructions.append(Instruction(command: command, correlation: correlation))
                     }
-                    
+
                     lastRelevantCommand = .moveTo
                 default:
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative

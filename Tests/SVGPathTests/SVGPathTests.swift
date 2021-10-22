@@ -140,7 +140,7 @@ final class SVGPathTests: XCTestCase {
         let expected = [
             moveTo((x: 1.0, y: 1.0)),
             moveTo((x: 1.0, y: 2.0), correlation: .relative),
-            line((x: 3.0, y: 4.0), correlation: .relative)
+            line((x: 3.0, y: 4.0), correlation: .relative),
         ]
         let result = SVGPath("M1 1 m1 2 3 4").instructions
 
@@ -159,14 +159,13 @@ final class SVGPathTests: XCTestCase {
         let expected = [
             moveTo((100, 200), correlation: .absolute),
             line((200, 100), correlation: .relative),
-            line((-100, -200), correlation: .relative)
+            line((-100, -200), correlation: .relative),
         ]
         let result = SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
 
-    
     func testSpacesIrrelevance() throws {
         let lhs = SVGPath("M 100 100 L 200 200").instructions
         let rhs = SVGPath("M100 100L200 200").instructions
@@ -174,9 +173,17 @@ final class SVGPathTests: XCTestCase {
         try SVGAssertEqual(lhs, rhs)
     }
 
-    // "M 100 100 L 200 200"
-    // "M100 100L200 200"
-    // "M 100 200 L 200 100 -100 -200"
+    func test_spaces_doesNotChangeInstructions() throws {
+        let expected = [
+            moveTo((100, 100), correlation: .absolute),
+            line((200, 200), correlation: .absolute),
+        ]
+        let result = SVGPath("M 100 100 L 200 200").instructions
+        try SVGAssertEqual(expected, result)
+
+        let result2 = SVGPath("M100 100L200 200").instructions
+        try SVGAssertEqual(expected, result2)
+    }
 
     func testMoveLinesAndNegativeValues() throws {
         let expected = [moveTo((x: 100, y: 200)), line((x: 200, y: 100)), line((x: -100, y: -200))]
