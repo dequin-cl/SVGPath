@@ -18,7 +18,9 @@ class SVGPath {
             if digitExp.contains(char) {
                 if instruction.hasCoordinate {
                     switch lastRelevantCommand {
-                    case .moveTo, .lineTo:
+                    case .moveTo:
+                        instructions.append(Instruction(command: .lineTo, correlation: instruction.nextInstructionCorrelation ?? instruction.correlation))
+                    case .lineTo:
                         instructions.append(Instruction(command: .lineTo, correlation: instruction.correlation))
                     case .horizontalLineTo:
                         let newInstruction = Instruction(command: .horizontalLineTo, correlation: instruction.correlation)
@@ -45,12 +47,20 @@ class SVGPath {
 
                     add(command: command, char: char)
                     lastRelevantCommand = command
+                case .moveTo:
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
+
+                    if instructions.isEmpty {
+                        instructions.append(Instruction(command: command, correlation: .absolute, next: correlation))
+                    } else {
+                        instructions.append(Instruction(command: command, correlation: correlation))
+                    }
+                    
+                    lastRelevantCommand = .moveTo
                 default:
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
                     instructions.append(Instruction(command: command, correlation: correlation))
                     switch command {
-                    case .moveTo:
-                        lastRelevantCommand = .moveTo
                     case .lineTo:
                         lastRelevantCommand = .lineTo
                     default:
@@ -104,7 +114,7 @@ class SVGPath {
     private func addLineBetweenInitialAndLastPoint() {
         // Current support is just for one subpath
         guard let initial = instructions.first?.endPoint,
-              let correlation = instructions.first?.correlation
+              let correlation = instructions.last?.correlation
         else {
             return
         }

@@ -154,8 +154,18 @@ final class SVGPathTests: XCTestCase {
         try SVGAssertEqual(expected, result)
     }
 
-    //  If a relative moveto (m) appears as the first element of the path, then it is treated as a pair of absolute coordinates. In this case, subsequent pairs of coordinates are treated as relative even though the initial moveto is interpreted as an absolute moveto.
-    
+    func test_startRelativeMove_deliversAbsoluteMoveAndRelativesSubsequentInstructions() throws {
+        let path = "m 100 200 200 100 -100 -200"
+        let expected = [
+            moveTo((100, 200), correlation: .absolute),
+            line((200, 100), correlation: .relative),
+            line((-100, -200), correlation: .relative)
+        ]
+        let result = SVGPath(path).instructions
+
+        try SVGAssertEqual(expected, result)
+    }
+
     
     func testSpacesIrrelevance() throws {
         let lhs = SVGPath("M 100 100 L 200 200").instructions
@@ -191,7 +201,7 @@ final class SVGPathTests: XCTestCase {
     func testExponentialNumber() throws {
         let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
 
-        let moveTo = Instruction(command: .moveTo, correlation: .relative)
+        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
         moveTo.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
         let lineTo1 = Instruction(command: .lineTo, correlation: .relative)
         lineTo1.testHooks.addEndPoint(x: "15.992614", y: "-15.1728")
