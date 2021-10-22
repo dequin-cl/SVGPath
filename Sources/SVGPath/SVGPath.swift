@@ -57,6 +57,12 @@ class SVGPath {
                     }
 
                     lastRelevantCommand = .moveTo
+                case .cubicBezierSmoothCurveTo:
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
+                    let currentPoint = instruction.endPoint
+                    let newInstruction = Instruction(command: command, correlation: correlation, point: currentPoint)
+                    instructions.append(newInstruction)
+                    lastRelevantCommand = .cubicBezierSmoothCurveTo
                 default:
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
                     instructions.append(Instruction(command: command, correlation: correlation))
