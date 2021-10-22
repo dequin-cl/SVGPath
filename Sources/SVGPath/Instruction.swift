@@ -20,6 +20,12 @@ public enum SVG {
     }
 }
 
+private var formatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.decimalSeparator = "."
+    return formatter
+}()
+
 private class Point {
     private var coordinateX: CGFloat?
     private var coordinateY: CGFloat?
@@ -32,11 +38,11 @@ private class Point {
     }
 
     func addValue(_ digit: String) {
-        if let float = Float(digit) {
+        if let number = formatter.number(from: digit) {
             if coordinateX == nil {
-                add(x: CGFloat(float))
+                add(x: CGFloat(truncating: number))
             } else {
-                add(y: CGFloat(float))
+                add(y: CGFloat(truncating: number))
             }
         }
     }
@@ -119,7 +125,7 @@ class Instruction {
         }
     }
 
-    var lastCharWasExponential: Bool { false }
+    var lastCharWasExponential: Bool { digitAccumulator.last == "e" }
     var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
     var hasCoordinate: Bool { endPoint != nil }
 }

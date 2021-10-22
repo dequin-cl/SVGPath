@@ -84,6 +84,10 @@ class SVGPath {
                     }
                 }
 
+                if instruction.isExpectingNumeric, !instruction.lastCharWasExponential {
+                    instruction.processSeparator()
+                }
+
                 instruction.addDigit(char)
             }
         }
