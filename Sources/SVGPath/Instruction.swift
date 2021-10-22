@@ -125,8 +125,9 @@ class Instruction {
         }
     }
 
-    var lastCharWasExponential: Bool { digitAccumulator.last == "e" }
+    var lastCharWasExponential: Bool { digitAccumulator.last?.lowercased() == "e" }
     var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
+    var hasDecimalSeparator: Bool { digitAccumulator.contains(".") }
     var hasCoordinate: Bool { endPoint != nil }
 }
 

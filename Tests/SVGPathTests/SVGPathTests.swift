@@ -368,6 +368,18 @@ final class SVGPathTests: XCTestCase {
         try SVGAssertEqual(expected, result)
     }
 
+    func test_twoSmoothBezier() throws {
+        let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5"
+        let expected = [
+            moveTo((30.18, 1.72), .absolute),
+            bezierSmooth((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
+            bezierSmooth((0.66, 27.06), control1: (-13.29, 1.08), control2: (0.28, 17.63), .absolute),
+            bezierSmooth((8.81, 5.5), control1: (0.66, 27.06), control2: (8.81, 5.5), .relative),
+        ]
+        let result = SVGPath(path).instructions
+        try SVGAssertEqual(expected, result)
+    }
+
     // MARK: - Helpers
 
     private func moveTo(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {

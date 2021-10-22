@@ -74,7 +74,14 @@ class SVGPath {
                     }
                 }
 
-            } else if char == period, instruction.isExpectingNumeric {
+            } else if char == period {
+                if instruction.isExpectingNumeric, instruction.hasDecimalSeparator {
+                    instruction.processSeparator()
+                }
+
+                if !instruction.isExpectingNumeric {
+                    instruction.addDigit("0")
+                }
                 instruction.addDigit(char)
             } else if sign.contains(char) {
                 if instruction.hasCoordinate {
