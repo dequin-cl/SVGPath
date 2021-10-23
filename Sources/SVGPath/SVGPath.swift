@@ -23,7 +23,7 @@ private extension String.Element {
 }
 
 class SVGPath {
-    private var lastRelevantCommand: SVG.Command?
+    private var lastRelevantCommand: Command?
     private(set) var instructions: [Instruction]
 
     init(_ path: String) throws {
@@ -52,7 +52,7 @@ class SVGPath {
             } else if char.is(commands) {
                 lastInstruction?.processSeparator()
 
-                guard let command = SVG.Command(rawValue: Character(char.uppercased())) else { return }
+                guard let command = Command(rawValue: Character(char.uppercased())) else { return }
 
                 switch command {
                 case .closePath:
@@ -107,7 +107,7 @@ class SVGPath {
         instruction.processSeparator()
     }
 
-    private func line(command: SVG.Command, correlation: Correlation) throws -> Instruction {
+    private func line(command: Command, correlation: Correlation) throws -> Instruction {
         let previousInstruction = instruction
         let instruction = Instruction(command, correlation: correlation)
 
