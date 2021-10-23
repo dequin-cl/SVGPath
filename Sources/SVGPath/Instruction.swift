@@ -66,6 +66,7 @@ class Instruction {
     private(set) var nextInstructionCorrelation: SVG.Correlation?
 
     // MARK: - Initializers
+
     public init(command: SVG.Command, correlation: SVG.Correlation) {
         self.command = command
         self.correlation = correlation
@@ -74,7 +75,12 @@ class Instruction {
     public convenience init() {
         self.init(command: SVG.Command.closePath, correlation: SVG.Correlation.relative)
     }
-    
+
+    public convenience init(command: SVG.Command, correlation: SVG.Correlation, control: CGPoint) {
+        self.init(command: command, correlation: correlation)
+        control1 = control
+    }
+
     public convenience init(command: SVG.Command, correlation: SVG.Correlation, point: CGPoint) {
         self.init(command: command, correlation: correlation)
 
@@ -84,7 +90,7 @@ class Instruction {
             endPoint = point
         }
     }
-    
+
     public convenience init(command: SVG.Command, correlation: SVG.Correlation, next nextInstructionCorrelation: SVG.Correlation) {
         self.init(command: command, correlation: correlation)
         self.nextInstructionCorrelation = nextInstructionCorrelation

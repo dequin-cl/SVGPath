@@ -3,6 +3,7 @@ import XCTest
 
 final class SVGPathTests: XCTestCase {
     // MARK: - Instructions
+
     func testBuildClosePathInstruction() {
         let instruction = Instruction()
         XCTAssertEqual(instruction.command, .closePath)
@@ -110,6 +111,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     // MARK: - Move
+
     func testSingleMoveTo() throws {
         let expected = [moveTo((x: 1.0, y: 2.0))]
         let result = try SVGPath("M1 2").instructions
@@ -139,6 +141,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     // MARK: - Line
+
     func testMoveToWithLineToRelative() throws {
         let expected = [
             moveTo((x: 1.0, y: 1.0)),
@@ -209,6 +212,7 @@ final class SVGPathTests: XCTestCase {
      */
 
     // MARK: - Exponential
+
     func testExponentialNumber() throws {
         let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
 
@@ -337,7 +341,7 @@ final class SVGPathTests: XCTestCase {
 
         try SVGAssertEqual(expected, result)
     }
-    
+
     // MARK: - Cubic Bezier
 
     func test_simpleBezier() throws {
@@ -398,16 +402,17 @@ final class SVGPathTests: XCTestCase {
     }
 
     // MARK: - Quadratic Bezier
-//    func test_create_quadratic_bezier() throws {
-//        let path = "M200,300 Q400,50 600,300 T1000,300"
-//        let expected = [
-//            moveTo((200, 300), .absolute),
-//            quadraticBezierCurve((600, 300), control1: (400, 50), .absolute),
-//            quadraticBezierSmoothCurve((1000, 300), control1: (800, 550))
-//        ]
-//        let result = try SVGPath(path).instructions
-//        try SVGAssertEqual(expected, result)
-//    }
+
+    func test_create_quadratic_bezier() throws {
+        let path = "M200,300 Q400,50 600,300 T1000,300"
+        let expected = [
+            moveTo((200, 300), .absolute),
+            quadraticBezierCurve((600, 300), control1: (400, 50), .absolute),
+            quadraticBezierSmoothCurve((1000, 300), control1: (800, 550)),
+        ]
+        let result = try SVGPath(path).instructions
+        try SVGAssertEqual(expected, result)
+    }
 
     // MARK: - Helpers
 

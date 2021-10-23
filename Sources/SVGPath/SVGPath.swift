@@ -66,10 +66,33 @@ class SVGPath {
                         throw Error.Invalid("The instruction before a Smooth Cubic Bezier should have and end point.")
                     }
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
-                    
+
                     let newInstruction = Instruction(command: command, correlation: correlation, point: currentPoint)
                     instructions.append(newInstruction)
                     lastRelevantCommand = .cubicBezierSmoothCurveTo
+                case .quadraticBezierSmoothCurveTo:
+                    guard let currentPoint = instruction.endPoint else {
+                        throw Error.Invalid("The instruction before a Smooth Quadratic Bezier should have and end point.")
+                    }
+                    let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
+
+//                    if previous instruction.control1
+                    // else
+
+                    var control = CGPoint.zero
+
+                    if instruction.command == .quadraticBezierCurveTo || instruction.command == .quadraticBezierSmoothCurveTo {
+                        guard let previousControlPoint = instruction.control1 else {
+                            throw Error.Invalid("The previous instruction seems to be a Quadratic Bezier, it must have a Control point, but could not find it.")
+                        }
+                        control = previousControlPoint
+                    } else {
+                        control = currentPoint
+                    }
+
+                    let newInstruction = Instruction(command: command, correlation: correlation, control: Helper.reflect(current: currentPoint, previousControl: control))
+
+                    instructions.append(newInstruction)
                 default:
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
                     instructions.append(Instruction(command: command, correlation: correlation))
