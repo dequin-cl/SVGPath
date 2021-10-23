@@ -350,7 +350,7 @@ final class SVGPathTests: XCTestCase {
         let path = "M 10 10 S 20 20, 40 20"
         let expected = [
             moveTo((x: 10, y: 10), .absolute),
-            bezierSmooth((x: 40, y: 20), control1: (x: 10, y: 10), control2: (x: 20, y: 20), .absolute),
+            cubicSmoothBezier((x: 40, y: 20), control1: (x: 10, y: 10), control2: (x: 20, y: 20), .absolute),
         ]
 
         let result = SVGPath(path).instructions
@@ -362,7 +362,7 @@ final class SVGPathTests: XCTestCase {
         let path = "M30.18,1.72s-5.1-3-13.29,1.08"
         let expected = [
             moveTo((30.18, 1.72), .absolute),
-            bezierSmooth((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
+            cubicSmoothBezier((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
         ]
         let result = SVGPath(path).instructions
         try SVGAssertEqual(expected, result)
@@ -372,13 +372,25 @@ final class SVGPathTests: XCTestCase {
         let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5"
         let expected = [
             moveTo((30.18, 1.72), .absolute),
-            bezierSmooth((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
-            bezierSmooth((0.66, 27.06), control1: (-13.29, 1.08), control2: (0.28, 17.63), .absolute),
-            bezierSmooth((8.81, 5.5), control1: (0.66, 27.06), control2: (8.81, 5.5), .relative),
+            cubicSmoothBezier((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
+            cubicSmoothBezier((0.66, 27.06), control1: (-13.29, 1.08), control2: (0.28, 17.63), .absolute),
+            cubicSmoothBezier((8.81, 5.5), control1: (0.66, 27.06), control2: (8.81, 5.5), .relative),
         ]
         let result = SVGPath(path).instructions
         try SVGAssertEqual(expected, result)
     }
+
+    // Quadratic Bezier
+//    func test_create_quadratic_bezier() throws {
+//        let path = "M200,300 Q400,50 600,300 T1000,300"
+//        let expected = [
+//            moveTo((200, 300), .absolute),
+//            quadraticBezierCurve((600, 300), control1: (400, 50), .absolute),
+//            quadraticBezierSmoothCurve((1000, 300), control1: (800, 550))
+//        ]
+//        let result = SVGPath(path).instructions
+//        try SVGAssertEqual(expected, result)
+//    }
 
     // MARK: - Helpers
 
@@ -420,11 +432,25 @@ final class SVGPathTests: XCTestCase {
         return instruction
     }
 
-    private func bezierSmooth(_ end: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    private func cubicSmoothBezier(_ end: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let instruction = Instruction(command: .cubicBezierSmoothCurveTo, correlation: correlation)
         instruction.testHooks.addEndPoint(x: end.x, y: end.y)
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         instruction.testHooks.addControl2(x: control2.x, y: control2.y)
+        return instruction
+    }
+
+    private func quadraticBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+        let instruction = Instruction(command: .quadraticBezierCurveTo, correlation: correlation)
+        instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+        instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+        return instruction
+    }
+
+    private func quadraticBezierSmoothCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+        let instruction = Instruction(command: .quadraticBezierSmoothCurveTo, correlation: correlation)
+        instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+        instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         return instruction
     }
 }

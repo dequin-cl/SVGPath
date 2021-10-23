@@ -117,6 +117,12 @@ class Instruction {
                 } else {
                     endPoint = currentPoint.cgValue
                 }
+            } else if command == .quadraticBezierCurveTo {
+                if control1 == nil {
+                    control1 = currentPoint.cgValue
+                } else {
+                    endPoint = currentPoint.cgValue
+                }
             } else {
                 endPoint = currentPoint.cgValue
             }
