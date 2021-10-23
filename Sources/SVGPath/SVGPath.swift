@@ -8,10 +8,14 @@ let sign = "+-"
 let exponent = "eE"
 let period: Character = "."
 
+enum Error: Swift.Error {
+    case Invalid(String)
+}
+
 class SVGPath {
     private(set) var instructions: [Instruction]
     private var lastRelevantCommand: SVG.Command?
-    init(_ path: String) {
+    init(_ path: String) throws {
         instructions = []
 
         for char in path {
@@ -58,8 +62,11 @@ class SVGPath {
 
                     lastRelevantCommand = .moveTo
                 case .cubicBezierSmoothCurveTo:
+                    guard let currentPoint = instruction.endPoint else {
+                        throw Error.Invalid("The instruction before a Smooth Cubic Bezier should have and end point.")
+                    }
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
-                    let currentPoint = instruction.endPoint
+                    
                     let newInstruction = Instruction(command: command, correlation: correlation, point: currentPoint)
                     instructions.append(newInstruction)
                     lastRelevantCommand = .cubicBezierSmoothCurveTo

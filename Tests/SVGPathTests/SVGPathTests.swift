@@ -2,6 +2,7 @@
 import XCTest
 
 final class SVGPathTests: XCTestCase {
+    // MARK: - Instructions
     func testBuildClosePathInstruction() {
         let instruction = Instruction()
         XCTAssertEqual(instruction.command, .closePath)
@@ -108,48 +109,50 @@ final class SVGPathTests: XCTestCase {
         XCTAssertEqual(instruction.endPoint, CGPoint(x: 11.5, y: 2.0))
     }
 
+    // MARK: - Move
     func testSingleMoveTo() throws {
         let expected = [moveTo((x: 1.0, y: 2.0))]
-        let result = SVGPath("M1 2").instructions
+        let result = try SVGPath("M1 2").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testSingleMoveToNegativeValues() throws {
         let expected = [moveTo((x: 1.0, y: -200.0))]
-        let result = SVGPath("M1 -200").instructions
+        let result = try SVGPath("M1 -200").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testSingleMoveToFartherPoint() throws {
         let expected = [moveTo((x: 100.0, y: 200.0))]
-        let result = SVGPath("M100 200").instructions
+        let result = try SVGPath("M100 200").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveToWithLineToAbsolute() throws {
         let expected = [moveTo((x: 1.0, y: 2.0)), line((x: 3.0, y: 4.0))]
-        let result = SVGPath("M1 2 3 4").instructions
+        let result = try SVGPath("M1 2 3 4").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
+    // MARK: - Line
     func testMoveToWithLineToRelative() throws {
         let expected = [
             moveTo((x: 1.0, y: 1.0)),
             moveTo((x: 1.0, y: 2.0), .relative),
             line((x: 3.0, y: 4.0), .relative),
         ]
-        let result = SVGPath("M1 1 m1 2 3 4").instructions
+        let result = try SVGPath("M1 1 m1 2 3 4").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveToWithLineToAllAbsolute() throws {
         let expected = [moveTo((x: 1.0, y: 1.0)), line((x: 1.0, y: 2.0)), line((x: 3.0, y: 4.0))]
-        let result = SVGPath("M1 1 1 2 3 4").instructions
+        let result = try SVGPath("M1 1 1 2 3 4").instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -161,14 +164,14 @@ final class SVGPathTests: XCTestCase {
             line((200, 100), .relative),
             line((-100, -200), .relative),
         ]
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testSpacesIrrelevance() throws {
-        let lhs = SVGPath("M 100 100 L 200 200").instructions
-        let rhs = SVGPath("M100 100L200 200").instructions
+        let lhs = try SVGPath("M 100 100 L 200 200").instructions
+        let rhs = try SVGPath("M100 100L200 200").instructions
 
         try SVGAssertEqual(lhs, rhs)
     }
@@ -178,23 +181,23 @@ final class SVGPathTests: XCTestCase {
             moveTo((100, 100), .absolute),
             line((200, 200), .absolute),
         ]
-        let result = SVGPath("M 100 100 L 200 200").instructions
+        let result = try SVGPath("M 100 100 L 200 200").instructions
         try SVGAssertEqual(expected, result)
 
-        let result2 = SVGPath("M100 100L200 200").instructions
+        let result2 = try SVGPath("M100 100L200 200").instructions
         try SVGAssertEqual(expected, result2)
     }
 
     func testMoveLinesAndNegativeValues() throws {
         let expected = [moveTo((x: 100, y: 200)), line((x: 200, y: 100)), line((x: -100, y: -200))]
-        let result = SVGPath("M 100 200 L 200 100 -100 -200").instructions
+        let result = try SVGPath("M 100 200 L 200 100 -100 -200").instructions
 
         try SVGAssertEqual(expected, result)
     }
 
     func testMoveLinesAndNegativeValuesCanBeCompressed() throws {
-        let lhs = SVGPath("M 100 200 L 200 100 -100 -200").instructions
-        let rhs = SVGPath("M 100 200 200 100 -100 -200").instructions
+        let lhs = try SVGPath("M 100 200 L 200 100 -100 -200").instructions
+        let rhs = try SVGPath("M 100 200 200 100 -100 -200").instructions
 
         try SVGAssertEqual(lhs, rhs)
     }
@@ -205,6 +208,7 @@ final class SVGPathTests: XCTestCase {
 
      */
 
+    // MARK: - Exponential
     func testExponentialNumber() throws {
         let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
 
@@ -223,7 +227,7 @@ final class SVGPathTests: XCTestCase {
 
         let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4, lineTo5]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -232,17 +236,17 @@ final class SVGPathTests: XCTestCase {
         let path = "M 100 100 L 300 100 L 200 300 z"
         let expected = [moveTo((100, 100)), line((300, 100)), line((200, 300)), line((100, 100))]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
 
-    // Horizontal
+    // MARK: - Horizontal
 
-    func testHorizontalWithoutPreviewsPointReturnsEmpty() {
+    func testHorizontalWithoutPreviewsPointReturnsEmpty() throws {
         let path = "H 100z"
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
         XCTAssertTrue(result.isEmpty)
     }
 
@@ -254,7 +258,7 @@ final class SVGPathTests: XCTestCase {
             line((x: 100, y: 100)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -268,7 +272,7 @@ final class SVGPathTests: XCTestCase {
             line((x: 100, y: 100)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -283,12 +287,12 @@ final class SVGPathTests: XCTestCase {
             line((x: 100, y: 100)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
 
-    // Vertical
+    // MARK: - Vertical
 
     func test_createSquare() throws {
         let path = "M 10 10 H 90 V 90 H 10 L 10 10"
@@ -300,7 +304,7 @@ final class SVGPathTests: XCTestCase {
             line((x: 10, y: 10)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -315,7 +319,7 @@ final class SVGPathTests: XCTestCase {
             line((x: 10, y: 10)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -329,10 +333,12 @@ final class SVGPathTests: XCTestCase {
             horizontalLine((x: 10, y: 90)),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
+    
+    // MARK: - Cubic Bezier
 
     func test_simpleBezier() throws {
         let path = "M 10 10 C 20 20, 40 20, 50 10"
@@ -341,7 +347,7 @@ final class SVGPathTests: XCTestCase {
             cubicBezierCurve((x: 50, y: 10), control1: (x: 20, y: 20), control2: (x: 40, y: 20), .absolute),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
@@ -353,10 +359,21 @@ final class SVGPathTests: XCTestCase {
             cubicSmoothBezier((x: 40, y: 20), control1: (x: 10, y: 10), control2: (x: 20, y: 20), .absolute),
         ]
 
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
 
         try SVGAssertEqual(expected, result)
     }
+
+    //    func test_somethingElse() {
+    //        let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5A37.79,37.79,0,0,0,22.76,18.87a81.39,81.39,0,0,0,7.11-16.3s-7.65,17.81-9.66,22.79-1.85,7.21-.54,8,4.63.72,11-7.55"
+    //
+    //        let result = try SVGPath(path).instructions
+    //
+    //        print(result)
+    //    }
+
+    // s-5.1-3-13.29,1.08   s (-5.1, -3)  (-13.29, 1.08)
+    // S.28,17.63.66,27.06  S (0.28, 17.63)  (0.66, 27.06)
 
     func test_smoothBezier_withNegatives() throws {
         let path = "M30.18,1.72s-5.1-3-13.29,1.08"
@@ -364,7 +381,7 @@ final class SVGPathTests: XCTestCase {
             moveTo((30.18, 1.72), .absolute),
             cubicSmoothBezier((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
         ]
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
         try SVGAssertEqual(expected, result)
     }
 
@@ -376,11 +393,11 @@ final class SVGPathTests: XCTestCase {
             cubicSmoothBezier((0.66, 27.06), control1: (-13.29, 1.08), control2: (0.28, 17.63), .absolute),
             cubicSmoothBezier((8.81, 5.5), control1: (0.66, 27.06), control2: (8.81, 5.5), .relative),
         ]
-        let result = SVGPath(path).instructions
+        let result = try SVGPath(path).instructions
         try SVGAssertEqual(expected, result)
     }
 
-    // Quadratic Bezier
+    // MARK: - Quadratic Bezier
 //    func test_create_quadratic_bezier() throws {
 //        let path = "M200,300 Q400,50 600,300 T1000,300"
 //        let expected = [
@@ -388,7 +405,7 @@ final class SVGPathTests: XCTestCase {
 //            quadraticBezierCurve((600, 300), control1: (400, 50), .absolute),
 //            quadraticBezierSmoothCurve((1000, 300), control1: (800, 550))
 //        ]
-//        let result = SVGPath(path).instructions
+//        let result = try SVGPath(path).instructions
 //        try SVGAssertEqual(expected, result)
 //    }
 
