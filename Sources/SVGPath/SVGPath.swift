@@ -23,7 +23,7 @@ private extension String.Element {
 }
 
 class SVGPath {
-    private var lastRelevantCommand: SVG.Command?
+    private var lastRelevantCommand: Command?
     private(set) var instructions: [Instruction]
 
     init(_ path: String) throws {
@@ -52,7 +52,7 @@ class SVGPath {
             } else if char.is(commands) {
                 lastInstruction?.processSeparator()
 
-                guard let command = SVG.Command(rawValue: Character(char.uppercased())) else { return }
+                guard let command = Command(rawValue: Character(char.uppercased())) else { return }
 
                 switch command {
                 case .closePath:
@@ -107,7 +107,7 @@ class SVGPath {
         instruction.processSeparator()
     }
 
-    private func line(command: SVG.Command, correlation: SVG.Correlation) throws -> Instruction {
+    private func line(command: Command, correlation: Correlation) throws -> Instruction {
         let previousInstruction = instruction
         let instruction = Instruction(command: command, correlation: correlation)
 
@@ -152,7 +152,7 @@ class SVGPath {
         return Instruction(command: .lineTo, correlation: correlation, point: initial)
     }
 
-    private func moveTo(correlation: SVG.Correlation) -> Instruction {
+    private func moveTo(correlation: Correlation) -> Instruction {
         if instructions.isEmpty {
             return Instruction(command: .moveTo, correlation: .absolute, next: correlation)
         } else {
@@ -160,7 +160,7 @@ class SVGPath {
         }
     }
 
-    private func quadraticBezierSmoothCurveTo(correlation: SVG.Correlation) throws -> Instruction {
+    private func quadraticBezierSmoothCurveTo(correlation: Correlation) throws -> Instruction {
         guard let currentPoint = instruction.endPoint else {
             throw Error.Invalid("The instruction before a Smooth Quadratic Bezier should have and end point.")
         }
@@ -180,7 +180,7 @@ class SVGPath {
                            control: Helper.reflect(current: currentPoint, previousControl: control))
     }
 
-    private func cubicBezierSmoothCurveTo(correlation: SVG.Correlation) throws -> Instruction {
+    private func cubicBezierSmoothCurveTo(correlation: Correlation) throws -> Instruction {
         guard let currentPoint = instruction.endPoint else {
             throw Error.Invalid("The instruction before a Smooth Cubic Bezier should have an end point.")
         }
@@ -200,7 +200,7 @@ class SVGPath {
                            control: Helper.reflect(current: currentPoint, previousControl: control))
     }
 
-    private func correlation(from char: String.Element) -> SVG.Correlation {
+    private func correlation(from char: String.Element) -> Correlation {
         char.isUppercase ? .absolute : .relative
     }
 }

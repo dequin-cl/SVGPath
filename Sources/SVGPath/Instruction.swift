@@ -1,12 +1,15 @@
 import Foundation
 
-public enum SVG {
-    public enum Correlation {
+typealias Command = SVG.Command
+typealias Correlation = SVG.Correlation
+
+enum SVG {
+    enum Correlation {
         case absolute
         case relative
     }
 
-    public enum Command: Character {
+    enum Command: Character {
         case moveTo = "M"
         case lineTo = "L"
         case horizontalLineTo = "H"
@@ -21,13 +24,14 @@ public enum SVG {
 }
 
 class Instruction {
+    
     private(set) var endPoint: CGPoint?
     private(set) var control1: CGPoint?
     private(set) var control2: CGPoint?
 
-    private(set) var command: SVG.Command
-    private(set) var correlation: SVG.Correlation
-    private(set) var nextInstructionCorrelation: SVG.Correlation?
+    private(set) var command: Command
+    private(set) var correlation: Correlation
+    private(set) var nextInstructionCorrelation: Correlation?
 
     private var digitAccumulator: String = ""
     private var currentPoint = Point()
@@ -39,21 +43,21 @@ class Instruction {
 
     // MARK: - Initializers
 
-    public init(command: SVG.Command, correlation: SVG.Correlation) {
+    public init(command: Command, correlation: Correlation) {
         self.command = command
         self.correlation = correlation
     }
 
     public convenience init() {
-        self.init(command: SVG.Command.closePath, correlation: SVG.Correlation.relative)
+        self.init(command: .closePath, correlation: .relative)
     }
 
-    public convenience init(command: SVG.Command, correlation: SVG.Correlation, control: CGPoint) {
+    public convenience init(command: Command, correlation: Correlation, control: CGPoint) {
         self.init(command: command, correlation: correlation)
         control1 = control
     }
 
-    public convenience init(command: SVG.Command, correlation: SVG.Correlation, point: CGPoint) {
+    public convenience init(command: Command, correlation: Correlation, point: CGPoint) {
         self.init(command: command, correlation: correlation)
 
         if command == .cubicBezierSmoothCurveTo {
@@ -63,7 +67,7 @@ class Instruction {
         }
     }
 
-    public convenience init(command: SVG.Command, correlation: SVG.Correlation, next nextInstructionCorrelation: SVG.Correlation) {
+    public convenience init(command: Command, correlation: Correlation, next nextInstructionCorrelation: Correlation) {
         self.init(command: command, correlation: correlation)
         self.nextInstructionCorrelation = nextInstructionCorrelation
     }
