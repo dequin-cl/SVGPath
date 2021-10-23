@@ -50,10 +50,8 @@ class SVGPath {
                 instruction.addDigit(char)
             } else if char.is(separator) {
                 instruction.processSeparator()
-            } else if char.is(commands) {
-                lastInstruction?.processSeparator()
-
-                guard let command = char.command else { return }
+            } else if char.is(commands), let command = char.command {
+                wrapLastInstruction()
 
                 switch command {
                 case .closePath:
@@ -130,14 +128,16 @@ class SVGPath {
         return instruction
     }
 
-    private var lastInstruction: Instruction? { instructions.last }
-
     private var instruction: Instruction {
         guard let instruction = instructions.last else {
             fatalError("You should call instruction only with a valid path")
         }
 
         return instruction
+    }
+
+    private func wrapLastInstruction() {
+        instructions.last?.processSeparator()
     }
 
     private func closePath() throws -> Instruction {
