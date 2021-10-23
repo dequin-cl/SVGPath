@@ -24,7 +24,6 @@ enum SVG {
 }
 
 class Instruction {
-    
     private(set) var endPoint: CGPoint?
     private(set) var control1: CGPoint?
     private(set) var control2: CGPoint?
@@ -72,7 +71,7 @@ class Instruction {
         self.nextInstructionCorrelation = nextInstructionCorrelation
     }
 
-    func addDigit(_ digit: String.Element) {
+    func addDigit(_ digit: Char) {
         digitAccumulator.append(digit)
     }
 

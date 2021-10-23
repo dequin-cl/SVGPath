@@ -6,20 +6,21 @@ private let separator = ", \t\n\r"
 private let commands = "MmZzLlHhVvCcSsQqTtAa"
 private let sign = "+-"
 private let exponent = "eE"
-private let period: Character = "."
+private let period = "."
 
 enum Error: Swift.Error {
     case Invalid(String)
 }
 
-private extension String.Element {
-    func `is`(_ string: String) -> Bool {
-        string.contains(self)
-    }
+typealias Char = String.Element
 
-    func `is`(_ character: String.Element) -> Bool {
-        self == character
-    }
+private extension Char {
+    func `is`(_ string: String) -> Bool { string.contains(self) }
+}
+
+private extension Char {
+    var correlation: Correlation { isUppercase ? .absolute : .relative }
+    var command: Command? { Command(rawValue: Character(uppercased())) }
 }
 
 class SVGPath {
@@ -52,25 +53,25 @@ class SVGPath {
             } else if char.is(commands) {
                 lastInstruction?.processSeparator()
 
-                guard let command = Command(rawValue: Character(char.uppercased())) else { return }
+                guard let command = char.command else { return }
 
                 switch command {
                 case .closePath:
                     instructions.append(try closePath())
+                case .moveTo:
+                    instructions.append(moveTo(correlation: char.correlation))
+                case .cubicBezierSmoothCurveTo:
+                    instructions.append(try cubicBezierSmoothCurveTo(correlation: char.correlation))
+                case .quadraticBezierSmoothCurveTo:
+                    instructions.append(try quadraticBezierSmoothCurveTo(correlation: char.correlation))
                 case .horizontalLineTo, .verticalLineTo:
-                    if instructions.isEmpty {
+                    guard !instructions.isEmpty else {
                         throw Error.Invalid("Cannot create an horizontal or vertical line without a previous instruction")
                     }
 
-                    instructions.append(try line(command, correlation: correlation(from: char)))
-                case .moveTo:
-                    instructions.append(moveTo(correlation: correlation(from: char)))
-                case .cubicBezierSmoothCurveTo:
-                    instructions.append(try cubicBezierSmoothCurveTo(correlation: correlation(from: char)))
-                case .quadraticBezierSmoothCurveTo:
-                    instructions.append(try quadraticBezierSmoothCurveTo(correlation: correlation(from: char)))
+                    instructions.append(try line(command, correlation: char.correlation))
                 default:
-                    instructions.append(Instruction(command, correlation: correlation(from: char)))
+                    instructions.append(Instruction(command, correlation: char.correlation))
                 }
 
                 switch command {
@@ -198,9 +199,5 @@ class SVGPath {
         return Instruction(.cubicBezierSmoothCurveTo,
                            correlation: correlation,
                            control: Helper.reflect(current: currentPoint, previousControl: control))
-    }
-
-    private func correlation(from char: String.Element) -> Correlation {
-        char.isUppercase ? .absolute : .relative
     }
 }
