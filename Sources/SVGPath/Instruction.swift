@@ -31,12 +31,12 @@ class Instruction {
 
     private var digitAccumulator: String = ""
     private var currentPoint = Point()
-    
+
     var lastCharWasExponential: Bool { digitAccumulator.last?.lowercased() == "e" }
     var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
     var hasDecimalSeparator: Bool { digitAccumulator.contains(".") }
     var hasCoordinate: Bool { endPoint != nil }
-    
+
     // MARK: - Initializers
 
     public init(command: SVG.Command, correlation: SVG.Correlation) {
@@ -86,29 +86,29 @@ class Instruction {
             digitAccumulator = ""
         }
 
-        if currentPoint.isFull {
+        if let point = currentPoint.cgValue {
             if command == .cubicBezierCurveTo {
                 if control1 == nil {
-                    control1 = currentPoint.cgValue
+                    control1 = point
                 } else if control2 == nil {
-                    control2 = currentPoint.cgValue
+                    control2 = point
                 } else {
-                    endPoint = currentPoint.cgValue
+                    endPoint = point
                 }
             } else if command == .cubicBezierSmoothCurveTo {
                 if control2 == nil {
-                    control2 = currentPoint.cgValue
+                    control2 = point
                 } else {
-                    endPoint = currentPoint.cgValue
+                    endPoint = point
                 }
             } else if command == .quadraticBezierCurveTo {
                 if control1 == nil {
-                    control1 = currentPoint.cgValue
+                    control1 = point
                 } else {
-                    endPoint = currentPoint.cgValue
+                    endPoint = point
                 }
             } else {
-                endPoint = currentPoint.cgValue
+                endPoint = point
             }
 
             currentPoint.clear()
@@ -149,8 +149,13 @@ private var formatter: NumberFormatter = {
 private class Point {
     private var coordinateX: CGFloat?
     private var coordinateY: CGFloat?
-    var isFull: Bool { coordinateX != nil && coordinateY != nil }
-    var cgValue: CGPoint { CGPoint(x: coordinateX!, y: coordinateY!) }
+    var cgValue: CGPoint? {
+        guard let coordinateX = coordinateX, let coordinateY = coordinateY else {
+            return nil
+        }
+
+        return CGPoint(x: coordinateX, y: coordinateY)
+    }
 
     func clear() {
         coordinateX = nil
