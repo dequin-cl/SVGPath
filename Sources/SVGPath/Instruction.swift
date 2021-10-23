@@ -20,42 +20,6 @@ public enum SVG {
     }
 }
 
-private var formatter: NumberFormatter = {
-    let formatter = NumberFormatter()
-    formatter.decimalSeparator = "."
-    return formatter
-}()
-
-private class Point {
-    private var coordinateX: CGFloat?
-    private var coordinateY: CGFloat?
-    var isFull: Bool { coordinateX != nil && coordinateY != nil }
-    var cgValue: CGPoint { CGPoint(x: coordinateX!, y: coordinateY!) }
-
-    func clear() {
-        coordinateX = nil
-        coordinateY = nil
-    }
-
-    func addValue(_ digit: String) {
-        if let number = formatter.number(from: digit) {
-            if coordinateX == nil {
-                add(x: CGFloat(truncating: number))
-            } else {
-                add(y: CGFloat(truncating: number))
-            }
-        }
-    }
-
-    func add(x: CGFloat) {
-        coordinateX = x
-    }
-
-    func add(y: CGFloat) {
-        coordinateY = y
-    }
-}
-
 class Instruction {
     private(set) var endPoint: CGPoint?
     private(set) var control1: CGPoint?
@@ -65,6 +29,14 @@ class Instruction {
     private(set) var correlation: SVG.Correlation
     private(set) var nextInstructionCorrelation: SVG.Correlation?
 
+    private var digitAccumulator: String = ""
+    private var currentPoint = Point()
+    
+    var lastCharWasExponential: Bool { digitAccumulator.last?.lowercased() == "e" }
+    var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
+    var hasDecimalSeparator: Bool { digitAccumulator.contains(".") }
+    var hasCoordinate: Bool { endPoint != nil }
+    
     // MARK: - Initializers
 
     public init(command: SVG.Command, correlation: SVG.Correlation) {
@@ -96,8 +68,6 @@ class Instruction {
         self.nextInstructionCorrelation = nextInstructionCorrelation
     }
 
-    private var digitAccumulator: String = ""
-    private var currentPoint = Point()
     func addDigit(_ digit: String.Element) {
         digitAccumulator.append(digit)
     }
@@ -144,12 +114,9 @@ class Instruction {
             currentPoint.clear()
         }
     }
-
-    var lastCharWasExponential: Bool { digitAccumulator.last?.lowercased() == "e" }
-    var isExpectingNumeric: Bool { !digitAccumulator.isEmpty }
-    var hasDecimalSeparator: Bool { digitAccumulator.contains(".") }
-    var hasCoordinate: Bool { endPoint != nil }
 }
+
+// MARK: - Equatable
 
 extension Instruction: Equatable {
     static func == (lhs: Instruction, rhs: Instruction) -> Bool {
@@ -159,6 +126,8 @@ extension Instruction: Equatable {
     }
 }
 
+// MARK: - For better debugging
+
 extension Instruction: CustomStringConvertible {
     var description: String {
         let command = correlation == .relative ? command.rawValue.lowercased() : command.rawValue.uppercased()
@@ -166,6 +135,44 @@ extension Instruction: CustomStringConvertible {
         description += "\(command)"
         description += endPoint?.debugDescription ?? ""
         return description
+    }
+}
+
+// MARK: - Private Elements
+
+private var formatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.decimalSeparator = "."
+    return formatter
+}()
+
+private class Point {
+    private var coordinateX: CGFloat?
+    private var coordinateY: CGFloat?
+    var isFull: Bool { coordinateX != nil && coordinateY != nil }
+    var cgValue: CGPoint { CGPoint(x: coordinateX!, y: coordinateY!) }
+
+    func clear() {
+        coordinateX = nil
+        coordinateY = nil
+    }
+
+    func addValue(_ digit: String) {
+        if let number = formatter.number(from: digit) {
+            if coordinateX == nil {
+                add(x: CGFloat(truncating: number))
+            } else {
+                add(y: CGFloat(truncating: number))
+            }
+        }
+    }
+
+    func add(x: CGFloat) {
+        coordinateX = x
+    }
+
+    func add(y: CGFloat) {
+        coordinateY = y
     }
 }
 
