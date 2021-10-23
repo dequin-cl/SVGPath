@@ -87,7 +87,10 @@ class Instruction {
         }
 
         if let point = currentPoint.cgValue {
-            if command == .cubicBezierCurveTo {
+            currentPoint.clear()
+
+            switch command {
+            case .cubicBezierCurveTo:
                 if control1 == nil {
                     control1 = point
                 } else if control2 == nil {
@@ -95,23 +98,21 @@ class Instruction {
                 } else {
                     endPoint = point
                 }
-            } else if command == .cubicBezierSmoothCurveTo {
+            case .cubicBezierSmoothCurveTo:
                 if control2 == nil {
                     control2 = point
                 } else {
                     endPoint = point
                 }
-            } else if command == .quadraticBezierCurveTo {
+            case .quadraticBezierCurveTo:
                 if control1 == nil {
                     control1 = point
                 } else {
                     endPoint = point
                 }
-            } else {
+            default:
                 endPoint = point
             }
-
-            currentPoint.clear()
         }
     }
 }
