@@ -47,7 +47,9 @@ class SVGPath {
                 case .closePath:
                     instructions.append(try closePath())
                 case .horizontalLineTo, .verticalLineTo:
-                    if instructions.isEmpty { return }
+                    if instructions.isEmpty {
+                        throw Error.Invalid("Cannot create an horizontal or vertical line without a previous instruction")
+                    }
 
                     instructions.append(try line(command: command, correlation: correlation(from: char)))
                 case .moveTo:

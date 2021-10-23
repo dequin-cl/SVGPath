@@ -249,9 +249,7 @@ final class SVGPathTests: XCTestCase {
 
     func testHorizontalWithoutPreviewsPointReturnsEmpty() throws {
         let path = "H 100z"
-
-        let result = try SVGPath(path).instructions
-        XCTAssertTrue(result.isEmpty)
+        XCTAssertThrowsError(try SVGPath(path).instructions)
     }
 
     func testHorizontalLine() throws {
