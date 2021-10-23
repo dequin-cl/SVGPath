@@ -62,7 +62,7 @@ class SVGPath {
                         throw Error.Invalid("Cannot create an horizontal or vertical line without a previous instruction")
                     }
 
-                    instructions.append(try line(command: command, correlation: correlation(from: char)))
+                    instructions.append(try line(command, correlation: correlation(from: char)))
                 case .moveTo:
                     instructions.append(moveTo(correlation: correlation(from: char)))
                 case .cubicBezierSmoothCurveTo:
@@ -107,7 +107,7 @@ class SVGPath {
         instruction.processSeparator()
     }
 
-    private func line(command: Command, correlation: Correlation) throws -> Instruction {
+    private func line(_ command: Command, correlation: Correlation) throws -> Instruction {
         let previousInstruction = instruction
         let instruction = Instruction(command, correlation: correlation)
 
