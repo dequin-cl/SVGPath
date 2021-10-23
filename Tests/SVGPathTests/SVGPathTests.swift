@@ -391,11 +391,25 @@ final class SVGPathTests: XCTestCase {
 
     func test_twoSmoothBezier() throws {
         let path = "M30.18,1.72s-5.1-3-13.29,1.08S.28,17.63.66,27.06s8.81,5.5,8.81,5.5"
+        let reflective1 = Helper.reflect(current: CGPoint(x: -13.29, y: 1.08), previousControl: CGPoint(x: -5.1, y: -3))
+        let reflective2 = Helper.reflect(current: CGPoint(x: 0.66, y: 27.06), previousControl: CGPoint(x: 0.28, y: 17.63))
         let expected = [
             moveTo((30.18, 1.72), .absolute),
             cubicSmoothBezier((-13.29, 1.08), control1: (30.18, 1.72), control2: (-5.1, -3), .relative),
-            cubicSmoothBezier((0.66, 27.06), control1: (-13.29, 1.08), control2: (0.28, 17.63), .absolute),
-            cubicSmoothBezier((8.81, 5.5), control1: (0.66, 27.06), control2: (8.81, 5.5), .relative),
+            cubicSmoothBezier((0.66, 27.06), control1: (reflective1.x, reflective1.y), control2: (0.28, 17.63), .absolute),
+            cubicSmoothBezier((8.81, 5.5), control1: (reflective2.x, reflective2.y), control2: (8.81, 5.5), .relative),
+        ]
+        let result = try SVGPath(path).instructions
+        try SVGAssertEqual(expected, result)
+    }
+
+    func test() throws {
+        let path = "M100,200 C100,100 250,100 250,200 S400,300 400,200"
+        let reflective = Helper.reflect(current: CGPoint(x: 250, y: 200), previousControl: CGPoint(x: 250, y: 100))
+        let expected = [
+            moveTo((100, 200), .absolute),
+            cubicBezierCurve((250, 200), control1: (100, 100), control2: (250, 100), .absolute),
+            cubicSmoothBezier((400, 200), control1: (reflective.x, reflective.y), control2: (400, 300), .absolute),
         ]
         let result = try SVGPath(path).instructions
         try SVGAssertEqual(expected, result)

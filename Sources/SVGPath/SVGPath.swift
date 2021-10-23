@@ -63,11 +63,24 @@ class SVGPath {
                     lastRelevantCommand = .moveTo
                 case .cubicBezierSmoothCurveTo:
                     guard let currentPoint = instruction.endPoint else {
-                        throw Error.Invalid("The instruction before a Smooth Cubic Bezier should have and end point.")
+                        throw Error.Invalid("The instruction before a Smooth Cubic Bezier should have an end point.")
                     }
+                    
+                    var control = CGPoint.zero
+                    if instruction.command == .cubicBezierCurveTo || instruction.command == .cubicBezierSmoothCurveTo {
+                        guard let previousControlPoint = instruction.control2 else {
+                            throw Error.Invalid("The previous instruction seems to be a Cubic Bezier, it must have a Control point, but could not find it.")
+                        }
+                        control = previousControlPoint
+                    } else {
+                        control = currentPoint
+                    }
+
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
 
-                    let newInstruction = Instruction(command: command, correlation: correlation, point: currentPoint)
+                    let newInstruction = Instruction(command: command,
+                                                     correlation: correlation,
+                                                     control: Helper.reflect(current: currentPoint, previousControl: control))
                     instructions.append(newInstruction)
                     lastRelevantCommand = .cubicBezierSmoothCurveTo
                 case .quadraticBezierSmoothCurveTo:
@@ -76,11 +89,7 @@ class SVGPath {
                     }
                     let correlation: SVG.Correlation = char.isUppercase ? .absolute : .relative
 
-//                    if previous instruction.control1
-                    // else
-
                     var control = CGPoint.zero
-
                     if instruction.command == .quadraticBezierCurveTo || instruction.command == .quadraticBezierSmoothCurveTo {
                         guard let previousControlPoint = instruction.control1 else {
                             throw Error.Invalid("The previous instruction seems to be a Quadratic Bezier, it must have a Control point, but could not find it.")
@@ -90,7 +99,9 @@ class SVGPath {
                         control = currentPoint
                     }
 
-                    let newInstruction = Instruction(command: command, correlation: correlation, control: Helper.reflect(current: currentPoint, previousControl: control))
+                    let newInstruction = Instruction(command: command,
+                                                     correlation: correlation,
+                                                     control: Helper.reflect(current: currentPoint, previousControl: control))
 
                     instructions.append(newInstruction)
                 default:
