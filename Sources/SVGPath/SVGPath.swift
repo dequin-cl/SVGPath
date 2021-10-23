@@ -25,7 +25,7 @@ private extension String.Element {
 class SVGPath {
     private var lastRelevantCommand: SVG.Command?
     private(set) var instructions: [Instruction]
-    
+
     init(_ path: String) throws {
         instructions = []
 
