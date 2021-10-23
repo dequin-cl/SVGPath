@@ -1,25 +1,36 @@
 
 import Foundation
 
-let digitExp = "0123456789eE"
-let separator = ", \t\n\r"
-let drawToCommands = "MmZzLlHhVvCcSsQqTtAa"
-let sign = "+-"
-let exponent = "eE"
-let period: Character = "."
+private let numericExpression = "0123456789eE"
+private let separator = ", \t\n\r"
+private let commands = "MmZzLlHhVvCcSsQqTtAa"
+private let sign = "+-"
+private let exponent = "eE"
+private let period: Character = "."
 
 enum Error: Swift.Error {
     case Invalid(String)
 }
 
+private extension String.Element {
+    func `is`(_ string: String) -> Bool {
+        string.contains(self)
+    }
+
+    func `is`(_ character: String.Element) -> Bool {
+        self == character
+    }
+}
+
 class SVGPath {
-    private(set) var instructions: [Instruction]
     private var lastRelevantCommand: SVG.Command?
+    private(set) var instructions: [Instruction]
+    
     init(_ path: String) throws {
         instructions = []
 
         for char in path {
-            if digitExp.contains(char) {
+            if char.is(numericExpression) {
                 if instruction.hasCoordinate {
                     switch lastRelevantCommand {
                     case .moveTo:
@@ -36,9 +47,9 @@ class SVGPath {
                 }
 
                 instruction.addDigit(char)
-            } else if separator.contains(char) {
+            } else if char.is(separator) {
                 instruction.processSeparator()
-            } else if drawToCommands.contains(char) {
+            } else if char.is(commands) {
                 lastInstruction?.processSeparator()
 
                 guard let command = SVG.Command(rawValue: Character(char.uppercased())) else { return }
@@ -69,7 +80,7 @@ class SVGPath {
                     lastRelevantCommand = nil
                 }
 
-            } else if char == period {
+            } else if char.is(period) {
                 if instruction.isExpectingNumeric, instruction.hasDecimalSeparator {
                     instruction.processSeparator()
                 }
@@ -78,7 +89,7 @@ class SVGPath {
                     instruction.addDigit("0")
                 }
                 instruction.addDigit(char)
-            } else if sign.contains(char) {
+            } else if char.is(sign) {
                 if instruction.hasCoordinate {
                     if lastRelevantCommand == .moveTo || lastRelevantCommand == .lineTo {
                         let newInstruction = Instruction(command: .lineTo, correlation: instruction.correlation)
