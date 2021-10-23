@@ -43,22 +43,22 @@ class Instruction {
 
     // MARK: - Initializers
 
-    public init(command: Command, correlation: Correlation) {
+    public init(_ command: Command, correlation: Correlation) {
         self.command = command
         self.correlation = correlation
     }
 
     public convenience init() {
-        self.init(command: .closePath, correlation: .relative)
+        self.init(.closePath, correlation: .relative)
     }
 
-    public convenience init(command: Command, correlation: Correlation, control: CGPoint) {
-        self.init(command: command, correlation: correlation)
+    public convenience init(_ command: Command, correlation: Correlation, control: CGPoint) {
+        self.init(command, correlation: correlation)
         control1 = control
     }
 
-    public convenience init(command: Command, correlation: Correlation, point: CGPoint) {
-        self.init(command: command, correlation: correlation)
+    public convenience init(_ command: Command, correlation: Correlation, point: CGPoint) {
+        self.init(command, correlation: correlation)
 
         if command == .cubicBezierSmoothCurveTo {
             control1 = point
@@ -67,8 +67,8 @@ class Instruction {
         }
     }
 
-    public convenience init(command: Command, correlation: Correlation, next nextInstructionCorrelation: Correlation) {
-        self.init(command: command, correlation: correlation)
+    public convenience init(_ command: Command, correlation: Correlation, next nextInstructionCorrelation: Correlation) {
+        self.init(command, correlation: correlation)
         self.nextInstructionCorrelation = nextInstructionCorrelation
     }
 

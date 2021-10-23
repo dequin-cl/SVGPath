@@ -23,7 +23,7 @@ private extension String.Element {
 }
 
 class SVGPath {
-    private var lastRelevantCommand: Command?
+    private var lastRelevantCommand: SVG.Command?
     private(set) var instructions: [Instruction]
 
     init(_ path: String) throws {
@@ -34,11 +34,11 @@ class SVGPath {
                 if instruction.hasCoordinate {
                     switch lastRelevantCommand {
                     case .moveTo:
-                        instructions.append(Instruction(command: .lineTo, correlation: instruction.nextInstructionCorrelation ?? instruction.correlation))
+                        instructions.append(Instruction(.lineTo, correlation: instruction.nextInstructionCorrelation ?? instruction.correlation))
                     case .lineTo:
-                        instructions.append(Instruction(command: .lineTo, correlation: instruction.correlation))
+                        instructions.append(Instruction(.lineTo, correlation: instruction.correlation))
                     case .horizontalLineTo:
-                        let newInstruction = Instruction(command: .horizontalLineTo, correlation: instruction.correlation)
+                        let newInstruction = Instruction(.horizontalLineTo, correlation: instruction.correlation)
                         newInstruction.add(y: instruction.endPoint!.y)
                         instructions.append(newInstruction)
                     default:
@@ -52,7 +52,7 @@ class SVGPath {
             } else if char.is(commands) {
                 lastInstruction?.processSeparator()
 
-                guard let command = Command(rawValue: Character(char.uppercased())) else { return }
+                guard let command = SVG.Command(rawValue: Character(char.uppercased())) else { return }
 
                 switch command {
                 case .closePath:
@@ -70,7 +70,7 @@ class SVGPath {
                 case .quadraticBezierSmoothCurveTo:
                     instructions.append(try quadraticBezierSmoothCurveTo(correlation: correlation(from: char)))
                 default:
-                    instructions.append(Instruction(command: command, correlation: correlation(from: char)))
+                    instructions.append(Instruction(command, correlation: correlation(from: char)))
                 }
 
                 switch command {
@@ -92,7 +92,7 @@ class SVGPath {
             } else if char.is(sign) {
                 if instruction.hasCoordinate {
                     if lastRelevantCommand == .moveTo || lastRelevantCommand == .lineTo {
-                        let newInstruction = Instruction(command: .lineTo, correlation: instruction.correlation)
+                        let newInstruction = Instruction(.lineTo, correlation: instruction.correlation)
                         instructions.append(newInstruction)
                     }
                 }
@@ -107,9 +107,9 @@ class SVGPath {
         instruction.processSeparator()
     }
 
-    private func line(command: Command, correlation: Correlation) throws -> Instruction {
+    private func line(command: SVG.Command, correlation: Correlation) throws -> Instruction {
         let previousInstruction = instruction
-        let instruction = Instruction(command: command, correlation: correlation)
+        let instruction = Instruction(command, correlation: correlation)
 
         switch command {
         case .horizontalLineTo:
@@ -149,14 +149,14 @@ class SVGPath {
             throw Error.Invalid("Last instruction should exist.")
         }
 
-        return Instruction(command: .lineTo, correlation: correlation, point: initial)
+        return Instruction(.lineTo, correlation: correlation, point: initial)
     }
 
     private func moveTo(correlation: Correlation) -> Instruction {
         if instructions.isEmpty {
-            return Instruction(command: .moveTo, correlation: .absolute, next: correlation)
+            return Instruction(.moveTo, correlation: .absolute, next: correlation)
         } else {
-            return Instruction(command: .moveTo, correlation: correlation)
+            return Instruction(.moveTo, correlation: correlation)
         }
     }
 
@@ -175,7 +175,7 @@ class SVGPath {
             control = currentPoint
         }
 
-        return Instruction(command: .quadraticBezierSmoothCurveTo,
+        return Instruction(.quadraticBezierSmoothCurveTo,
                            correlation: correlation,
                            control: Helper.reflect(current: currentPoint, previousControl: control))
     }
@@ -195,7 +195,7 @@ class SVGPath {
             control = currentPoint
         }
 
-        return Instruction(command: .cubicBezierSmoothCurveTo,
+        return Instruction(.cubicBezierSmoothCurveTo,
                            correlation: correlation,
                            control: Helper.reflect(current: currentPoint, previousControl: control))
     }

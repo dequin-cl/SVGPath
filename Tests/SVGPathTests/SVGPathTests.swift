@@ -12,7 +12,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     func testBuildAbsoluteMoveToInstructionA() {
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
+        let instruction = Instruction(.moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
         XCTAssertNil(instruction.endPoint)
@@ -33,7 +33,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     func testBuildAbsoluteMoveToInstruction() {
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
+        let instruction = Instruction(.moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
         XCTAssertNil(instruction.endPoint)
@@ -57,7 +57,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     func testBuildAbsoluteMoveToInstructionWithNegative() {
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
+        let instruction = Instruction(.moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
         XCTAssertNil(instruction.endPoint)
@@ -85,7 +85,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     func testBuildAbsoluteMoveToInstructionWithDecimals() {
-        let instruction = Instruction(command: .moveTo, correlation: .absolute)
+        let instruction = Instruction(.moveTo, correlation: .absolute)
 
         XCTAssertEqual(instruction.correlation, .absolute)
         XCTAssertNil(instruction.endPoint)
@@ -216,17 +216,17 @@ final class SVGPathTests: XCTestCase {
     func testExponentialNumber() throws {
         let path = "m 83.846207,283.12668 l 15.992614,-15.1728 -2.513154,3.79032 -3.843936,5.68391 2.52e-4,1.13167 z"
 
-        let moveTo = Instruction(command: .moveTo, correlation: .absolute)
+        let moveTo = Instruction(.moveTo, correlation: .absolute)
         moveTo.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
-        let lineTo1 = Instruction(command: .lineTo, correlation: .relative)
+        let lineTo1 = Instruction(.lineTo, correlation: .relative)
         lineTo1.testHooks.addEndPoint(x: "15.992614", y: "-15.1728")
-        let lineTo2 = Instruction(command: .lineTo, correlation: .relative)
+        let lineTo2 = Instruction(.lineTo, correlation: .relative)
         lineTo2.testHooks.addEndPoint(x: "-2.513154", y: "3.79032")
-        let lineTo3 = Instruction(command: .lineTo, correlation: .relative)
+        let lineTo3 = Instruction(.lineTo, correlation: .relative)
         lineTo3.testHooks.addEndPoint(x: "-3.843936", y: "5.68391")
-        let lineTo4 = Instruction(command: .lineTo, correlation: .relative)
+        let lineTo4 = Instruction(.lineTo, correlation: .relative)
         lineTo4.testHooks.addEndPoint(x: "2.52e-4", y: "1.13167")
-        let lineTo5 = Instruction(command: .lineTo, correlation: .relative)
+        let lineTo5 = Instruction(.lineTo, correlation: .relative)
         lineTo5.testHooks.addEndPoint(x: "83.846207", y: "283.12668")
 
         let expected = [moveTo, lineTo1, lineTo2, lineTo3, lineTo4, lineTo5]
@@ -429,37 +429,37 @@ final class SVGPathTests: XCTestCase {
     // MARK: - Helpers
 
     private func moveTo(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let moveTo = Instruction(command: .moveTo, correlation: correlation)
+        let moveTo = Instruction(.moveTo, correlation: correlation)
         moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
         return moveTo
     }
 
     private func moveTo(_ point: (x: String, y: String), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let moveTo = Instruction(command: .moveTo, correlation: correlation)
+        let moveTo = Instruction(.moveTo, correlation: correlation)
         moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
         return moveTo
     }
 
     private func horizontalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let horizontalLine = Instruction(command: .horizontalLineTo, correlation: correlation)
+        let horizontalLine = Instruction(.horizontalLineTo, correlation: correlation)
         horizontalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return horizontalLine
     }
 
     private func verticalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let verticalLine = Instruction(command: .verticalLineTo, correlation: correlation)
+        let verticalLine = Instruction(.verticalLineTo, correlation: correlation)
         verticalLine.testHooks.addEndPoint(x: point.x, y: point.y)
         return verticalLine
     }
 
     private func line(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let line = Instruction(command: .lineTo, correlation: correlation)
+        let line = Instruction(.lineTo, correlation: correlation)
         line.testHooks.addEndPoint(x: point.x, y: point.y)
         return line
     }
 
     private func cubicBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let instruction = Instruction(command: .cubicBezierCurveTo, correlation: correlation)
+        let instruction = Instruction(.cubicBezierCurveTo, correlation: correlation)
         instruction.testHooks.addEndPoint(x: to.x, y: to.y)
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         instruction.testHooks.addControl2(x: control2.x, y: control2.y)
@@ -467,7 +467,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     private func cubicSmoothBezier(_ end: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let instruction = Instruction(command: .cubicBezierSmoothCurveTo, correlation: correlation)
+        let instruction = Instruction(.cubicBezierSmoothCurveTo, correlation: correlation)
         instruction.testHooks.addEndPoint(x: end.x, y: end.y)
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         instruction.testHooks.addControl2(x: control2.x, y: control2.y)
@@ -475,14 +475,14 @@ final class SVGPathTests: XCTestCase {
     }
 
     private func quadraticBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let instruction = Instruction(command: .quadraticBezierCurveTo, correlation: correlation)
+        let instruction = Instruction(.quadraticBezierCurveTo, correlation: correlation)
         instruction.testHooks.addEndPoint(x: to.x, y: to.y)
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         return instruction
     }
 
     private func quadraticBezierSmoothCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
-        let instruction = Instruction(command: .quadraticBezierSmoothCurveTo, correlation: correlation)
+        let instruction = Instruction(.quadraticBezierSmoothCurveTo, correlation: correlation)
         instruction.testHooks.addEndPoint(x: to.x, y: to.y)
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         return instruction
