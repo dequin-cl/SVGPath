@@ -32,7 +32,7 @@ class Instruction {
     private(set) var rotation: Int?
     private(set) var useLargeArc: Bool?
     private(set) var useSweep: Bool?
-    
+
     private(set) var command: Command
     private(set) var correlation: Correlation
     private(set) var nextInstructionCorrelation: Correlation?
@@ -152,16 +152,6 @@ class Instruction {
     }
 }
 
-// MARK: - Equatable
-
-extension Instruction: Equatable {
-    static func == (lhs: Instruction, rhs: Instruction) -> Bool {
-        lhs.endPoint == rhs.endPoint &&
-            lhs.command == rhs.command &&
-            lhs.correlation == rhs.correlation
-    }
-}
-
 // MARK: - For better debugging
 
 extension Instruction: CustomStringConvertible {
@@ -170,7 +160,7 @@ extension Instruction: CustomStringConvertible {
         var description = ""
         description += "\(cmd)"
         description += endPoint?.debugDescription ?? ""
-        
+
         if command == .ellipticalArc {
             description += " rotation: \(rotation ?? -1) "
             if let useLargeArc = useLargeArc {
@@ -184,7 +174,7 @@ extension Instruction: CustomStringConvertible {
                 description += " sweep: Not defined!"
             }
         }
-        
+
         return description
     }
 }
@@ -232,16 +222,6 @@ private class Point {
     }
 }
 
-// MARK: - CGPoint helpers
-
-// private func +(a:CGPoint, b:CGPoint) -> CGPoint {
-//    return CGPoint(x: a.x + b.x, y: a.y + b.y)
-// }
-
-// private func -(a:CGPoint, b:CGPoint) -> CGPoint {
-//    return CGPoint(x: a.x - b.x, y: a.y - b.y)
-// }
-
 // MARK: - TestHooks
 
 #if DEBUG
@@ -277,7 +257,7 @@ private class Point {
             func addControl2(x: CGFloat, y: CGFloat) {
                 target.control2 = CGPoint(x: x, y: y)
             }
-            
+
             func addRadius(x: CGFloat, y: CGFloat) {
                 target.radius = CGPoint(x: x, y: y)
             }

@@ -427,7 +427,7 @@ final class SVGPathTests: XCTestCase {
     }
 
     // MARK: - Elliptical Arc
-    
+
     func test_threeQuarters_circle() throws {
 //        A 37.79,37.79, 0, 0, 0, 22.76, 18.87
         let path = "M300,200 h-150 a150,150 0 1,0 150,-150 z"
@@ -441,7 +441,7 @@ final class SVGPathTests: XCTestCase {
         print(result)
         try SVGAssertEqual(expected, result)
     }
-    
+
     func test_multiple_arcs() throws {
         let path = """
         M600,350
@@ -456,23 +456,22 @@ final class SVGPathTests: XCTestCase {
         l 50,-25
         """
         let expected = [
-            moveTo((600,350), .absolute),
-            line((50,-25), .relative),
-            ellipticalArc((50,-25), (25,25), degrees: -30, largeArc: false, sweep: true, .relative),
-            line((50,-25), .relative),
-            ellipticalArc((50,-25), (25,50), degrees: -30, largeArc: false, sweep: true, .relative),
-            line((50,-25), .relative),
-            ellipticalArc((50,-25), (25,75), degrees: -30, largeArc: false, sweep: true, .relative),
-            line((50,-25), .relative),
-            ellipticalArc((50,-25), (25,100), degrees: -30, largeArc: false, sweep: true, .relative),
-            line((50,-25), .relative),
-
+            moveTo((600, 350), .absolute),
+            line((50, -25), .relative),
+            ellipticalArc((50, -25), (25, 25), degrees: -30, largeArc: false, sweep: true, .relative),
+            line((50, -25), .relative),
+            ellipticalArc((50, -25), (25, 50), degrees: -30, largeArc: false, sweep: true, .relative),
+            line((50, -25), .relative),
+            ellipticalArc((50, -25), (25, 75), degrees: -30, largeArc: false, sweep: true, .relative),
+            line((50, -25), .relative),
+            ellipticalArc((50, -25), (25, 100), degrees: -30, largeArc: false, sweep: true, .relative),
+            line((50, -25), .relative),
         ]
         let result = try SVGPath(path).instructions
         print(result)
         try SVGAssertEqual(expected, result)
     }
-    
+
     // MARK: - Helpers
 
     private func moveTo(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
@@ -534,8 +533,8 @@ final class SVGPathTests: XCTestCase {
         instruction.testHooks.addControl1(x: control1.x, y: control1.y)
         return instruction
     }
-    
-    private func ellipticalArc(_ to: (x: CGFloat, y: CGFloat),_ radius: (x: CGFloat, y: CGFloat), degrees: Int, largeArc: Bool, sweep: Bool, _ correlation: SVG.Correlation = .absolute) -> Instruction {
+
+    private func ellipticalArc(_ to: (x: CGFloat, y: CGFloat), _ radius: (x: CGFloat, y: CGFloat), degrees: Int, largeArc: Bool, sweep: Bool, _ correlation: SVG.Correlation = .absolute) -> Instruction {
         let instruction = Instruction(.ellipticalArc, correlation: correlation)
 
         instruction.testHooks.addRadius(x: radius.x, y: radius.y)
