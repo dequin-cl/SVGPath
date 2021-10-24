@@ -30,7 +30,7 @@ class Instruction {
     private(set) var control2: CGPoint?
 
     private(set) var radius: CGPoint?
-    private(set) var rotation: Int?
+    private(set) var rotation: CGFloat?
     private(set) var useLargeArc: Bool?
     private(set) var useSweep: Bool?
 
@@ -96,7 +96,7 @@ class Instruction {
                     currentPoint.addValue(digitAccumulator)
                 } else if rotation == nil {
                     if let number = formatter.number(from: digitAccumulator) {
-                        rotation = Int(truncating: number)
+                        rotation = CGFloat(truncating: number)
                     }
                 } else if useLargeArc == nil {
                     if let number = formatter.number(from: digitAccumulator) {
@@ -264,7 +264,7 @@ private class Point {
                 target.radius = CGPoint(x: x, y: y)
             }
 
-            func addRotation(degrees: Int) {
+            func addRotation(degrees: CGFloat) {
                 target.rotation = degrees
             }
 

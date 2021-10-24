@@ -16,11 +16,12 @@
                 case .horizontalLineTo, .lineTo, .verticalLineTo:
                     addLine(to: instruction.endPoint!)
                 case .cubicBezierCurveTo, .cubicBezierSmoothCurveTo:
-                    addCurve(to: instruction.endPoint!, control1: instruction.control1!, control2: instruction.control2!)
+                    addCurve(to: instruction.endPoint!, controlPoint1: instruction.control1!, controlPoint2: instruction.control2!)
                 case .quadraticBezierCurveTo, .quadraticBezierSmoothCurveTo:
-                    addQuadCurve(to: instruction.endPoint!, control: instruction.control1!)
+                    addQuadCurve(to: instruction.endPoint!, controlPoint: instruction.control1!)
                 case .ellipticalArc:
-                    addArc(center: instruction.endPoint!, radius: instruction.radius!, startAngle: instruction.rotation!, endAngle: 360, clockwise: true)
+                    let radius = CGPointDistance(from: instruction.endPoint!, to: instruction.radius!)
+                    addArc(withCenter: instruction.endPoint!, radius: radius, startAngle: instruction.rotation!, endAngle: 360, clockwise: true)
                 default:
                     break
                 }
@@ -28,3 +29,12 @@
         }
     }
 #endif
+
+import CoreGraphics
+func CGPointDistanceSquared(from: CGPoint, to: CGPoint) -> CGFloat {
+    return (from.x - to.x) * (from.x - to.x) + (from.y - to.y) * (from.y - to.y)
+}
+
+func CGPointDistance(from: CGPoint, to: CGPoint) -> CGFloat {
+    return sqrt(CGPointDistanceSquared(from: from, to: to))
+}

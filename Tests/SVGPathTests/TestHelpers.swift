@@ -97,7 +97,7 @@ func quadraticBezierSmoothCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CG
     return instruction
 }
 
-func ellipticalArc(_ to: (x: CGFloat, y: CGFloat), _ radius: (x: CGFloat, y: CGFloat), degrees: Int, largeArc: Bool, sweep: Bool, _ correlation: SVG.Correlation = .absolute) -> Instruction {
+func ellipticalArc(_ to: (x: CGFloat, y: CGFloat), _ radius: (x: CGFloat, y: CGFloat), degrees: CGFloat, largeArc: Bool, sweep: Bool, _ correlation: SVG.Correlation = .absolute) -> Instruction {
     let instruction = Instruction(.ellipticalArc, correlation: correlation)
 
     instruction.testHooks.addRadius(x: radius.x, y: radius.y)

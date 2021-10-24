@@ -205,9 +205,14 @@ public class SVGPath {
 
 #if os(iOS)
     import UIKit
+    import SwiftUI
     public extension SVGPath {
         var bezier: UIBezierPath {
             UIBezierPath(instructions)
+        }
+        @available(iOS 13.0, *)
+        var path: Path {
+            Path(instructions)
         }
     }
 #endif

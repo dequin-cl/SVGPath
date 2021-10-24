@@ -5,7 +5,7 @@
 #if canImport(SwiftUI)
 import SwiftUI
 
-@available(macOS 10.15, *)
+@available(iOS 13.0, *)
 extension Path {
     init(_ instructions: [Instruction]) {
         self.init()
@@ -21,12 +21,13 @@ extension Path {
             case .quadraticBezierCurveTo, .quadraticBezierSmoothCurveTo:
                 addQuadCurve(to: instruction.endPoint!, control: instruction.control1!)
             case .ellipticalArc:
-                addArc(center: instruction.endPoint!, radius: instruction.radius!, startAngle: instruction.rotation!, endAngle: 360, clockwise: true)
+                let radius = CGPointDistance(from: instruction.endPoint!, to: instruction.radius!)
+
+                addArc(center: instruction.endPoint!, radius: radius, startAngle: Angle(degrees: instruction.rotation!), endAngle: Angle(degrees: 360), clockwise: true)
             default:
                 break
             }
         }
     }
 }
-
 #endif
