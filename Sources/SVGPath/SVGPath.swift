@@ -1,5 +1,6 @@
 
 import Foundation
+import CoreGraphics
 
 private let numericExpression = "0123456789eE"
 private let separator = ", \t\n\r"
@@ -23,11 +24,11 @@ private extension Char {
     var command: Command? { Command(rawValue: Character(uppercased())) }
 }
 
-class SVGPath {
+public class SVGPath {
     private var lastRelevantCommand: Command?
     private(set) var instructions: [Instruction]
 
-    init(_ path: String) throws {
+    public init(_ path: String) throws {
         instructions = []
 
         for char in path {
@@ -201,3 +202,12 @@ class SVGPath {
                            control: Helper.reflect(current: currentPoint, previousControl: control))
     }
 }
+
+#if os(iOS)
+    import UIKit
+    public extension SVGPath {
+        var bezier: UIBezierPath {
+            UIBezierPath(instructions)
+        }
+    }
+#endif

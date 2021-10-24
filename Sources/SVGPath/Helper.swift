@@ -3,6 +3,7 @@
 //
 
 import Foundation
+import CoreGraphics
 
 enum Helper {
     // MARK: - Reflected control points https://www.w3.org/TR/SVG/paths.html#ReflectedControlPoints

@@ -34,3 +34,77 @@ private func compareProperties<T: Equatable>(_ expected: T?, _ received: T?, in 
 
     XCTAssertEqual(expected, received, "Expected \(command) \(property): \(expected), but got: \(result)", file: file, line: line)
 }
+
+// MARK: - Instructions
+
+func moveTo(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let moveTo = Instruction(.moveTo, correlation: correlation)
+    moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
+    return moveTo
+}
+
+func moveTo(_ point: (x: String, y: String), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let moveTo = Instruction(.moveTo, correlation: correlation)
+    moveTo.testHooks.addEndPoint(x: point.x, y: point.y)
+    return moveTo
+}
+
+func horizontalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let horizontalLine = Instruction(.horizontalLineTo, correlation: correlation)
+    horizontalLine.testHooks.addEndPoint(x: point.x, y: point.y)
+    return horizontalLine
+}
+
+func verticalLine(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let verticalLine = Instruction(.verticalLineTo, correlation: correlation)
+    verticalLine.testHooks.addEndPoint(x: point.x, y: point.y)
+    return verticalLine
+}
+
+func line(_ point: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let line = Instruction(.lineTo, correlation: correlation)
+    line.testHooks.addEndPoint(x: point.x, y: point.y)
+    return line
+}
+
+func cubicBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let instruction = Instruction(.cubicBezierCurveTo, correlation: correlation)
+    instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+    instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+    instruction.testHooks.addControl2(x: control2.x, y: control2.y)
+    return instruction
+}
+
+func cubicSmoothBezier(_ end: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), control2: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let instruction = Instruction(.cubicBezierSmoothCurveTo, correlation: correlation)
+    instruction.testHooks.addEndPoint(x: end.x, y: end.y)
+    instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+    instruction.testHooks.addControl2(x: control2.x, y: control2.y)
+    return instruction
+}
+
+func quadraticBezierCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let instruction = Instruction(.quadraticBezierCurveTo, correlation: correlation)
+    instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+    instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+    return instruction
+}
+
+func quadraticBezierSmoothCurve(_ to: (x: CGFloat, y: CGFloat), control1: (x: CGFloat, y: CGFloat), _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let instruction = Instruction(.quadraticBezierSmoothCurveTo, correlation: correlation)
+    instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+    instruction.testHooks.addControl1(x: control1.x, y: control1.y)
+    return instruction
+}
+
+func ellipticalArc(_ to: (x: CGFloat, y: CGFloat), _ radius: (x: CGFloat, y: CGFloat), degrees: Int, largeArc: Bool, sweep: Bool, _ correlation: SVG.Correlation = .absolute) -> Instruction {
+    let instruction = Instruction(.ellipticalArc, correlation: correlation)
+
+    instruction.testHooks.addRadius(x: radius.x, y: radius.y)
+    instruction.testHooks.addRotation(degrees: degrees)
+    instruction.testHooks.useLargeArc(largeArc)
+    instruction.testHooks.useSweep(sweep)
+    instruction.testHooks.addEndPoint(x: to.x, y: to.y)
+
+    return instruction
+}

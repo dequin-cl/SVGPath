@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "SVGPath",
-    platforms: [.iOS(.v8), .macOS(.v10_10)],
+    platforms: [.iOS(.v9), .macOS(.v10_10)],
     products: [
         .library(
             name: "SVGPath",

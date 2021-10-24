@@ -1,4 +1,5 @@
 import Foundation
+import CoreGraphics
 
 typealias Command = SVG.Command
 typealias Correlation = SVG.Correlation
