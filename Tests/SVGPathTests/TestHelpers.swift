@@ -23,7 +23,7 @@ func SVGAssertEqual(_ expected: [Instruction], _ received: [Instruction], file: 
         XCTAssertEqual(
             expected[i].endPoint,
             received[i].endPoint,
-            "Expected endPoint: \(expected[i].endPoint!) but received: \(String(describing: received[i].endPoint))",
+            "Expected \(expected[i].command) endPoint: \(expected[i].endPoint!) but received: \(expected[i].command) -> \(String(describing: received[i].endPoint))",
             file: file,
             line: line
         )
@@ -41,5 +41,17 @@ func SVGAssertEqual(_ expected: [Instruction], _ received: [Instruction], file: 
             file: file,
             line: line
         )
+        
+        try compareProperties(expected[i].radius, received[i].radius, in: received[i].command, property: "radius", file: file, line: line)
+        try compareProperties(expected[i].rotation, received[i].rotation, in: received[i].command, property: "rotation", file: file, line: line)
+        try compareProperties(expected[i].useLargeArc, received[i].useLargeArc, in: received[i].command, property: "useLargeArc", file: file, line: line)
+        try compareProperties(expected[i].useSweep, received[i].useSweep, in: received[i].command, property: "useSweep", file: file, line: line)
     }
+}
+
+func compareProperties<T:Equatable>(_ expected: T?, _ received: T?, in command: Command, property: String, file: StaticString = #filePath, line: UInt = #line) throws {
+    guard let expected = expected else { return }
+    
+    let result = try XCTUnwrap(received, "Expected \(property) but got nil")
+    XCTAssertEqual(expected, received, "Expected \(command) \(property): \(expected), but got: \(result)", file: file, line: line)
 }

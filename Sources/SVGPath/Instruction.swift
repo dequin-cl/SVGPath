@@ -28,6 +28,11 @@ class Instruction {
     private(set) var control1: CGPoint?
     private(set) var control2: CGPoint?
 
+    private(set) var radius: CGPoint?
+    private(set) var rotation: Int?
+    private(set) var useLargeArc: Bool?
+    private(set) var useSweep: Bool?
+    
     private(set) var command: Command
     private(set) var correlation: Correlation
     private(set) var nextInstructionCorrelation: Correlation?
@@ -85,8 +90,29 @@ class Instruction {
 
     func processSeparator() {
         if !digitAccumulator.isEmpty {
-            currentPoint.addValue(digitAccumulator)
-            digitAccumulator = ""
+            if command == .ellipticalArc {
+                if radius == nil {
+                    currentPoint.addValue(digitAccumulator)
+                } else if rotation == nil {
+                    if let number = formatter.number(from: digitAccumulator) {
+                        rotation = Int(truncating: number)
+                    }
+                } else if useLargeArc == nil {
+                    if let number = formatter.number(from: digitAccumulator) {
+                        useLargeArc = Bool(truncating: number)
+                    }
+                } else if useSweep == nil {
+                    if let number = formatter.number(from: digitAccumulator) {
+                        useSweep = Bool(truncating: number)
+                    }
+                } else {
+                    currentPoint.addValue(digitAccumulator)
+                }
+                digitAccumulator = ""
+            } else {
+                currentPoint.addValue(digitAccumulator)
+                digitAccumulator = ""
+            }
         }
 
         if let point = currentPoint.cgValue {
@@ -113,6 +139,12 @@ class Instruction {
                 } else {
                     endPoint = point
                 }
+            case .ellipticalArc:
+                if radius == nil {
+                    radius = point
+                } else {
+                    endPoint = point
+                }
             default:
                 endPoint = point
             }
@@ -134,10 +166,25 @@ extension Instruction: Equatable {
 
 extension Instruction: CustomStringConvertible {
     var description: String {
-        let command = correlation == .relative ? command.rawValue.lowercased() : command.rawValue.uppercased()
+        let cmd = correlation == .relative ? command.rawValue.lowercased() : command.rawValue.uppercased()
         var description = ""
-        description += "\(command)"
+        description += "\(cmd)"
         description += endPoint?.debugDescription ?? ""
+        
+        if command == .ellipticalArc {
+            description += " rotation: \(rotation ?? -1) "
+            if let useLargeArc = useLargeArc {
+                description += " largeArc: \(useLargeArc)"
+            } else {
+                description += " largeArc: Not defined!"
+            }
+            if let useSweep = useSweep {
+                description += " sweep: \(useSweep)"
+            } else {
+                description += " sweep: Not defined!"
+            }
+        }
+        
         return description
     }
 }
@@ -229,6 +276,22 @@ private class Point {
 
             func addControl2(x: CGFloat, y: CGFloat) {
                 target.control2 = CGPoint(x: x, y: y)
+            }
+            
+            func addRadius(x: CGFloat, y: CGFloat) {
+                target.radius = CGPoint(x: x, y: y)
+            }
+
+            func addRotation(degrees: Int) {
+                target.rotation = degrees
+            }
+
+            func useLargeArc(_ use: Bool) {
+                target.useLargeArc = use
+            }
+
+            func useSweep(_ use: Bool) {
+                target.useSweep = use
             }
         }
     }
