@@ -164,6 +164,7 @@ extension Instruction: CustomStringConvertible {
 
         if command == .ellipticalArc {
             description += " rotation: \(rotation ?? -1) "
+            description += " radius: \(radius?.debugDescription ?? "") "
             if let useLargeArc = useLargeArc {
                 description += " largeArc: \(useLargeArc)"
             } else {

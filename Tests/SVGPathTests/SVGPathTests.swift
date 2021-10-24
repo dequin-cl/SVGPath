@@ -468,7 +468,6 @@ final class SVGPathTests: XCTestCase {
             line((50, -25), .relative),
         ]
         let result = try SVGPath(path).instructions
-        print(result)
         try SVGAssertEqual(expected, result)
     }
 }

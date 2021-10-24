@@ -12,9 +12,15 @@
             instructions.forEach { instruction in
                 switch instruction.command {
                 case .moveTo:
-                    self.move(to: instruction.endPoint!)
-                case .horizontalLineTo, .lineTo:
-                    self.addLine(to: instruction.endPoint!)
+                    move(to: instruction.endPoint!)
+                case .horizontalLineTo, .lineTo, .verticalLineTo:
+                    addLine(to: instruction.endPoint!)
+                case .cubicBezierCurveTo, .cubicBezierSmoothCurveTo:
+                    addCurve(to: instruction.endPoint!, control1: instruction.control1!, control2: instruction.control2!)
+                case .quadraticBezierCurveTo, .quadraticBezierSmoothCurveTo:
+                    addQuadCurve(to: instruction.endPoint!, control: instruction.control1!)
+                case .ellipticalArc:
+                    addArc(center: instruction.endPoint!, radius: instruction.radius!, startAngle: instruction.rotation!, endAngle: 360, clockwise: true)
                 default:
                     break
                 }
